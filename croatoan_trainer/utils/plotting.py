@@ -7,35 +7,36 @@ from plotly.subplots import make_subplots
 
 
 def plot_targets_hist(
-    targets: Dict[Any, float],
-    info: str,
+    df: pd.DataFrame,
+    target_column: str,
     plotly_args: Dict[str, Any]
 ):
-    df = pd.DataFrame(data=targets.items(), columns=["ID", info])
-    df[info] = df[info].astype("float32")
-    fig = px.histogram(df, x=info)
+    df = df.copy()
+    df[target_column] = df[target_column].astype("float32")
+    fig = px.histogram(df, x=target_column)
     fig.update_layout(
         **plotly_args,
-        title_text="Targets Histogram"
+        title_text=f"{target_column} Histogram"
     )
     fig.show()
 
 
 def plot_split_targets_hist(
-    targets: Dict[Any, float],
+    df: pd.DataFrame,
+    main_column: str,
+    target_column: str,
     train_test_split: Dict[str, Any],
     cv_split: List[Dict[str, Any]],
-    info: str,
     plotly_args: Dict[str, Any]
 ):
-    df = pd.DataFrame(data=targets.items(), columns=["ID", info])
-    df[info] = df[info].astype("float32")
+    df = df.copy()
+    df[target_column] = df[target_column].astype("float32")
 
     ids_train = train_test_split["train"]
     ids_test = train_test_split["test"]
 
-    targets_train = df[df["ID"].isin(ids_train)][info]
-    targets_test = df[df["ID"].isin(ids_test)][info]
+    targets_train = df[df[main_column].isin(ids_train)][target_column]
+    targets_test = df[df[main_column].isin(ids_test)][target_column]
 
     folds = len(cv_split)
     n_plots = folds * 2 + 2
@@ -47,7 +48,7 @@ def plot_split_targets_hist(
         subplot_titles += [f"Train_{fold}", f"Val_{fold}"]
 
     fig = make_subplots(rows=rows, cols=cols,
-                        x_title=info, y_title="Count",
+                        x_title=target_column, y_title="Count",
                         subplot_titles=subplot_titles)
 
     fig.add_trace(
@@ -68,7 +69,7 @@ def plot_split_targets_hist(
                 ids = cv_split[i][stage]
             except IndexError:
                 break
-            targets = df[df["ID"].isin(ids)][info]
+            targets = df[df[main_column].isin(ids)][target_column]
             fig.add_trace(
                 go.Histogram(x=targets, name=f"{stage}_{i}".capitalize()),
                 row=y, col=x
@@ -78,6 +79,6 @@ def plot_split_targets_hist(
 
     fig.update_layout(
         **plotly_args,
-        title_text=f"Targets Histograms for Train-Test and CV Splits"
+        title_text=f"{target_column} Histograms for Train-Test and CV Splits"
     )
     fig.show()
