@@ -12,7 +12,7 @@ from ..utils.plotting import plot_targets_hist, plot_split_targets_hist
 class _Preproc(_Base):
     def __init__(
         self,
-        ids_to_targets: Dict[Any, float],
+        ids_to_targets: Dict[Union[int, str], float],
     ):
         """
         Args:
@@ -32,7 +32,9 @@ class _Preproc(_Base):
         assert param, f"Run `{fn_name}()` method first!"
 
     @staticmethod
-    def _make_df(ids_to_targets) -> pd.DataFrame:
+    def _make_df(
+        ids_to_targets: Dict[Union[int, str], float]
+    ) -> pd.DataFrame:
         return pd.DataFrame(
             data=ids_to_targets.items(),
             columns=["ID", "Input Targets"]
@@ -63,7 +65,10 @@ class _Preproc(_Base):
 
     # Work with features
 
-    def set_features(self, ids_to_features: Dict[Any, Any]):
+    def set_features(
+        self,
+        ids_to_features: Dict[Union[int, str], List[float]]
+    ):
         """
         Sets features for training
 
@@ -97,8 +102,8 @@ class _Preproc(_Base):
 
     @staticmethod
     def _check_splits(
-        train_test: Dict[str, Union[str, float]],
-        cv: List[Dict[str, Union[str, float]]]
+        train_test: Dict[str, List[Union[int, str]]],
+        cv: List[Dict[str, List[Union[int, str]]]]
     ):
         def check_train_test(split, fold):
             stage = "test" if fold is None else "val"
@@ -129,8 +134,8 @@ class _Preproc(_Base):
 
     def _split_outro(
         self,
-        train_test: Dict[str, Union[str, float]],
-        cv: List[Dict[str, Union[str, float]]]
+        train_test: Dict[str, List[Union[int, str]]],
+        cv: List[Dict[str, List[Union[int, str]]]]
     ):
         self._check_splits(train_test, cv)
 
@@ -288,7 +293,7 @@ class BinaryPreproc(_Preproc):
         `set_plotly_args(**kwargs)`: Sets args for plotly charts
     """
 
-    def __init__(self, ids_to_targets: Dict[Any, float]):
+    def __init__(self, ids_to_targets: Dict[Union[int, str], float]):
         super().__init__(ids_to_targets)
 
     # Work with targets
@@ -344,7 +349,7 @@ class RegressionPreproc(_Preproc):
         `set_plotly_args(**kwargs)`: Sets args for plotly charts
     """
 
-    def __init__(self, ids_to_targets: Dict[Any, float]):
+    def __init__(self, ids_to_targets: Dict[Union[int, str], float]):
         super().__init__(ids_to_targets)
 
     # Work with targets

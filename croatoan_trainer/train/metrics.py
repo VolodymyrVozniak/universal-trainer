@@ -1,3 +1,5 @@
+from typing import Dict
+
 import numpy as np
 import torch
 from sklearn.metrics import roc_auc_score, accuracy_score, \
@@ -5,13 +7,29 @@ from sklearn.metrics import roc_auc_score, accuracy_score, \
     mean_squared_error, mean_absolute_error, mean_absolute_percentage_error
 
 
-def get_metrics_binary(y_true, y_pred):
+def get_metrics_binary(
+    y_true: torch.Tensor,
+    y_pred: torch.Tensor
+) -> Dict[str, float]:
+    """
+    Computes metrics for binary problem task
+    (`roc_auc`, `accuracy`, `recall`, `precision`, `f1`)
+
+    Args:
+        `y_true` (torch.Tensor): Torch tensor with real targets
+        `y_pred` (torch.Tensor): Torch tensor with predicted targets
+        (must be values after sigmoid)
+
+    Returns:
+        dict: dictionary with metric's name as keys and
+        metric's values as values
+    """
     scores = {}
     try:
         scores["roc_auc"] = float(roc_auc_score(y_true, y_pred))
     except ValueError:
         scores["roc_auc"] = -np.inf
-    y_pred = torch.round(torch.sigmoid(y_pred))
+    y_pred = torch.round(y_pred)
     scores["accuracy"] = float(accuracy_score(y_true, y_pred))
     scores["recall"] = float(recall_score(y_true, y_pred, zero_division=0))
     scores["precision"] = float(precision_score(y_true, y_pred,
@@ -20,7 +38,22 @@ def get_metrics_binary(y_true, y_pred):
     return scores
 
 
-def get_metrics_regression(y_true, y_pred):
+def get_metrics_regression(
+    y_true: torch.Tensor,
+    y_pred: torch.Tensor
+) -> Dict[str, float]:
+    """
+    Computes metrics for regression problem task
+    (`mse`, `mae`, `mape`, `r2`)
+
+    Args:
+        `y_true` (torch.Tensor): Torch tensor with real targets
+        `y_pred` (torch.Tensor): Torch tensor with predicted targets
+
+    Returns:
+        dict: dictionary with metric's name as keys and
+        metric's values as values
+    """
     scores = {}
     if np.isfinite(y_pred).all():
         scores["mse"] = float(mean_squared_error(y_true, y_pred))
