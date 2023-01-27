@@ -1,4 +1,4 @@
-class Base():
+class _Base():
     def set_plotly_args(self, **kwargs):
         """
         Sets plotly args for charts
