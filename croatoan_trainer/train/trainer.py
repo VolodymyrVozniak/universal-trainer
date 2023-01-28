@@ -25,7 +25,7 @@ class Trainer():
         from torch
         `criterion` (torch.nn.modules.loss._Loss): Any loss from torch
         `get_metrics` (callable): Function that takes two torch tensors
-        (real and predicted targets), computes some metrics and saves them
+        (real and predicted values), computes some metrics and saves them
         to dict with metric's name as keys and metric's values as values
         `main_metric` (str): Main metric (must be one of metrics defined in
         `get_metrics` function). This metric will be used to choose
@@ -67,7 +67,7 @@ class Trainer():
             from torch
             `criterion` (torch.nn.modules.loss._Loss): Any loss from torch
             `get_metrics` (callable): Function that takes two torch tensors
-            (real and predicted targets), computes some metrics and saves them
+            (real and predicted values), computes some metrics and saves them
             to dict with metric's name as keys and metric's values as values
             `main_metric` (str): Main metric (must be one of metrics defined in
             `get_metrics` function). This metric will be used to choose
@@ -127,8 +127,13 @@ class Trainer():
 
         Returns:
             tuple: dictionary with `cv`, `test` and `final` as keys and
-            dict with results for each stage as values and model weights
-            for final model
+            dict with results for each stage as values (which contains
+            lossses for each epoch inside `losses`, dict with metrics returned
+            by `self.get_metrics` function for each epoch inside `metrics`,
+            best epoch and best metrics inside `best_result`, training time
+            inside `time`, list with unique ids inside `ids`, list with real
+            values inside `true` and list with predicted values for each
+            epoch inside `pred`) and model weights for final model
         """
         self._init_logs(file=True, console=True)
 

@@ -21,6 +21,11 @@ class _Preproc(_Base):
         """
         self.df = self._make_df(ids_to_targets)
 
+        if self.df["ID"].nunique() != len(self.df):
+            raise ValueError("There are duplicates in unique ids! "
+                             "Please check it and assign new unique "
+                             "ids without duplicates!")
+
         self.targets = {}
         self.features = {}
         self.split = defaultdict(dict)
