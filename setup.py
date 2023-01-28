@@ -4,7 +4,7 @@ import setuptools
 setuptools.setup(
     name='croatoan-trainer',
     version='0.0.1',
-    packages=setuptools.find_packages(),
+    packages=["croatoan_trainer"],
     url='https://github.com/VolodymyrVozniak/universal-trainer',
     license='',
     author='Volodymyr Vozniak',
