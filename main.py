@@ -2,29 +2,33 @@ import numpy as np
 import torch
 from torch.utils.data import DataLoader
 from torch.optim import Adam
-from sklearn.datasets import load_breast_cancer, load_diabetes
+from sklearn.datasets import load_breast_cancer, load_diabetes, load_iris
 
-from croatoan_trainer.preprocess import BinaryPreproc, RegressionPreproc
+from croatoan_trainer.preprocess import BinaryPreproc, RegressionPreproc, \
+    MulticlassPreproc
 from croatoan_trainer.train import Trainer
-from croatoan_trainer.analyze import BinaryAnalyzer, RegressionAnalyzer
+from croatoan_trainer.analyze import BinaryAnalyzer, RegressionAnalyzer, \
+    MulticlassAnalyzer
 from croatoan_trainer.train.dataset import CroatoanDataset
-from croatoan_trainer.train.model import BinarySimpleMLP, RegressionSimpleMLP
+from croatoan_trainer.train.model import BinarySimpleMLP, \
+    RegressionSimpleMLP, MulticlassSimpleMLP
 from croatoan_trainer.train.metrics import get_metrics_binary, \
-    get_metrics_regression
+    get_metrics_regression, get_metrics_multiclass
 
 
 if __name__ == "__main__":
-    data = load_breast_cancer()
+    data = load_iris()
     x = data['data']
     y = data['target']
 
     ids_to_targets = dict(zip(np.arange(len(y)), y))
     ids_to_features = dict(zip(np.arange(len(y)), x))
 
-    preproc = BinaryPreproc(ids_to_targets)
+    preproc = MulticlassPreproc(ids_to_targets)
     # preproc.plot_targets(prepared=False)
-    preproc.prepare_targets(reverse=True)
+    # preproc.prepare_targets(reverse=True)
     # preproc.prepare_targets(log=False, quantiles=None)
+    preproc.prepare_targets()
     # preproc.plot_targets(prepared=True)
     preproc.set_features(ids_to_features)
     preproc.random_split()
@@ -36,10 +40,10 @@ if __name__ == "__main__":
         preprocessed_data=preproc,
         dataset_class=CroatoanDataset,
         loader_class=DataLoader,
-        model_class=BinarySimpleMLP,
+        model_class=MulticlassSimpleMLP,
         optimizer_class=Adam,
-        criterion=torch.nn.BCELoss(),
-        get_metrics=get_metrics_binary,
+        criterion=torch.nn.CrossEntropyLoss(),
+        get_metrics=get_metrics_multiclass,
         main_metric="f1",
         direction="maximize"
     )
@@ -48,6 +52,7 @@ if __name__ == "__main__":
         "model": {
             "in_features": x.shape[1],
             "hidden_features": 20,
+            "output_features": 3,
             "dropout": 0.25
         },
         "optimizer": {
@@ -59,9 +64,7 @@ if __name__ == "__main__":
     }
     results, model_weights = trainer.train(params)
 
-    analyzer = BinaryAnalyzer(results)
-    analyzer.plot_all("final")
-    analyzer.plot_confusion_matrix_per_epoch(
-        "final",
-        epochs=[0, 24, 32, 54, 67, 86]
-    )
+    def postprocess_fn(model_output):
+        return np.argmax(model_output, axis=1)
+
+    analyzer = MulticlassAnalyzer(results, postprocess_fn)

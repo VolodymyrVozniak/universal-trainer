@@ -132,7 +132,7 @@ class Trainer():
             by `self.get_metrics` function for each epoch inside `metrics`,
             best epoch and best metrics inside `best_result`, training time
             inside `time`, list with unique ids inside `ids`, list with real
-            values inside `true` and list with predicted values for each
+            values inside `true` and list with model outputs for each
             epoch inside `pred`) and model weights for final model
         """
         self._init_logs(file=True, console=True)

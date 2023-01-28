@@ -12,12 +12,12 @@ def get_metrics_binary(
     y_pred: torch.Tensor
 ) -> Dict[str, float]:
     """
-    Computes metrics for binary problem task
+    Computes metrics for binary problem
     (`roc_auc`, `accuracy`, `recall`, `precision`, `f1`)
 
     Args:
-        `y_true` (torch.Tensor): Torch tensor with real targets
-        `y_pred` (torch.Tensor): Torch tensor with predicted targets
+        `y_true` (torch.Tensor): Torch tensor with real values
+        `y_pred` (torch.Tensor): Torch tensor with predicted values
         (must be values after sigmoid)
 
     Returns:
@@ -43,12 +43,12 @@ def get_metrics_regression(
     y_pred: torch.Tensor
 ) -> Dict[str, float]:
     """
-    Computes metrics for regression problem task
+    Computes metrics for regression problem
     (`mse`, `mae`, `mape`, `r2`)
 
     Args:
-        `y_true` (torch.Tensor): Torch tensor with real targets
-        `y_pred` (torch.Tensor): Torch tensor with predicted targets
+        `y_true` (torch.Tensor): Torch tensor with real values
+        `y_pred` (torch.Tensor): Torch tensor with predicted values
 
     Returns:
         dict: dictionary with metric's name as keys and
@@ -63,4 +63,45 @@ def get_metrics_regression(
     else:
         scores["mse"], scores["mae"], scores["mape"], scores["r2"] \
             = [-np.inf] * 4
+    return scores
+
+
+def get_metrics_multiclass(
+    y_true: torch.Tensor,
+    y_pred: torch.Tensor
+) -> Dict[str, float]:
+    """
+    Computes metrics for multiclassification problem
+    (`accuracy`, `recall`, `precision`, `f1` with `'macro'`)
+
+    Args:
+        `y_true` (torch.Tensor): Torch tensor with real values
+        `y_pred` (torch.Tensor): Torch tensor with predicted values
+        (logits for each class)
+
+    Returns:
+        dict: dictionary with metric's name as keys and
+        metric's values as values
+    """
+    y_pred = torch.argmax(y_pred, dim=1)
+    scores = {}
+    scores["accuracy"] = float(accuracy_score(y_true, y_pred))
+    scores["recall"] = float(recall_score(
+        y_true=y_true,
+        y_pred=y_pred,
+        zero_division=0,
+        average="macro"
+    ))
+    scores["precision"] = float(precision_score(
+        y_true=y_true,
+        y_pred=y_pred,
+        zero_division=0,
+        average="macro"
+    ))
+    scores["f1"] = float(f1_score(
+        y_true=y_true,
+        y_pred=y_pred,
+        zero_division=0,
+        average="macro"
+    ))
     return scores

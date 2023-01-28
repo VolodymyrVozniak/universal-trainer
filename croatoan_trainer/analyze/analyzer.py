@@ -14,20 +14,13 @@ from ..base import _Base
 
 
 class _TrainAnalyzer(_Base):
-    def __init__(self, results: Dict[str, Dict[str, Any]]):
-        """
-        Args:
-            `results` (dict): Dictionary with results per each stage
-            after training. Keys are `cv`, `test` and `final` and
-            values are dicts with results for each stage (which contain
-            lossses for each epoch inside `losses`, dict with metrics
-            for each epoch inside `metrics`, best epoch and best metrics
-            inside `best_result`, training time inside `time`,
-            list with unique ids inside `ids`, list with true values
-            inside `true` and list with predicted values for each
-            epoch inside `pred`)
-        """
+    def __init__(
+        self,
+        results: Dict[str, Dict[str, Any]],
+        postprocess_fn: Union[None, Callable[[List], List]]
+    ):
         self.results = results
+        self.postprocess_fn = postprocess_fn
         self.set_plotly_args(font_size=14, template="plotly_dark", bargap=0.2)
         # self.set_plotly_args(font_size=14, barmode="overlay", bargap=0.2)
 
@@ -152,9 +145,11 @@ class _TrainAnalyzer(_Base):
         true = self.results[stage]["true"]
         best_epoch = self.results[stage]["best_result"]["epoch"]
         pred = self.results[stage]["pred"][best_epoch]
-        df = pd.DataFrame({"ID": ids, "True": true, "Pred": pred})
 
-        return df
+        if self.postprocess_fn:
+            pred = self.postprocess_fn(pred)
+
+        return pd.DataFrame({"ID": ids, "True": true, "Pred": pred})
 
     def plot_losses(
         self,
@@ -211,6 +206,8 @@ class _TrainAnalyzer(_Base):
         pred = self.results[stage]['pred']
 
         sample_pred = list(map(lambda x: x[index], pred))
+        if self.postprocess_fn:
+            sample_pred = self.postprocess_fn(sample_pred)
         epochs = len(sample_pred)
 
         df = pd.DataFrame({'epoch': range(epochs),
@@ -280,6 +277,9 @@ class BinaryAnalyzer(_TrainAnalyzer):
         after training. Keys are `cv`, `test` and `final`.
         Main keys for each stage are `losses`, `metrics`, `best_result`
         `time`, `ids`, `true` and `pred`
+        `postprocess_fn` (callable): Function that takes list with
+        model outputs from `pred` key for each stage in `results`
+        and somehow processes them.
 
     Methods:
         `get_stages()`: Gets list of stages
@@ -306,8 +306,33 @@ class BinaryAnalyzer(_TrainAnalyzer):
         `set_plotly_args(**kwargs)`: Sets args for plotly charts
     """
 
-    def __init__(self, results: Dict[str, Dict[str, Any]]):
-        super().__init__(results)
+    def __init__(
+        self,
+        results: Dict[str, Dict[str, Any]],
+        postprocess_fn: Union[None, Callable[[List], List]] = None
+    ):
+        """
+        Args:
+            `results` (dict): Dictionary with results per each stage
+            after training. Keys are `cv`, `test` and `final` and
+            values are dicts with results for each stage (which contain
+            lossses for each epoch inside `losses`, dict with metrics
+            for each epoch inside `metrics`, best epoch and best metrics
+            inside `best_result`, training time inside `time`,
+            list with unique ids inside `ids`, list with true values
+            inside `true` and list with model outputs for each
+            epoch inside `pred`)
+            `postprocess_fn` (callable): Function that takes list with
+            model outputs from `pred` key for each stage in `results`
+            and somehow processes them. For binary problem it is important
+            to have probability of belonging to class 1 as final output.
+            So, for example, if you have logits as your model output, define
+            function that will convert your logits into probabilities
+            (simple sigmoid function). If you have probabilities as your
+            model output, keep this argument `None` and use default model
+            outputs (default is `None`)
+        """
+        super().__init__(results, postprocess_fn)
 
     def get_metric_result(
         self,
@@ -393,7 +418,9 @@ class BinaryAnalyzer(_TrainAnalyzer):
 
         for i, epoch in enumerate(epochs):
             try:
-                pred = np.array(self.results[stage]['pred'][epoch])
+                pred = self.results[stage]['pred'][epoch]
+                if self.postprocess_fn:
+                    pred = self.postprocess_fn(pred)
             except IndexError:
                 raise ValueError(f"There is no `{epoch}` epoch in "
                                  f"`{stage}` stage!")
@@ -569,6 +596,9 @@ class RegressionAnalyzer(_TrainAnalyzer):
         after training. Keys are `cv`, `test` and `final`.
         Main keys for each stage are `losses`, `metrics`, `best_result`
         `time`, `ids`, `true` and `pred`
+        `postprocess_fn` (callable): Function that takes list with
+        model outputs from `pred` key for each stage in `results`
+        and somehow processes them.
 
     Methods:
         `get_stages()`: Gets list of stages
@@ -597,8 +627,27 @@ class RegressionAnalyzer(_TrainAnalyzer):
         `set_plotly_args(**kwargs)`: Sets args for plotly charts
     """
 
-    def __init__(self, results: Dict[str, Dict[str, Any]]):
-        super().__init__(results)
+    def __init__(
+        self,
+        results: Dict[str, Dict[str, Any]],
+        postprocess_fn: Union[None, Callable[[List], List]] = None
+    ):
+        """
+        Args:
+            `results` (dict): Dictionary with results per each stage
+            after training. Keys are `cv`, `test` and `final` and
+            values are dicts with results for each stage (which contain
+            lossses for each epoch inside `losses`, dict with metrics
+            for each epoch inside `metrics`, best epoch and best metrics
+            inside `best_result`, training time inside `time`,
+            list with unique ids inside `ids`, list with true values
+            inside `true` and list with model outputs for each
+            epoch inside `pred`)
+            `postprocess_fn` (callable): Function that takes list with
+            model outputs from `pred` key for each stage in `results`
+            and somehow processes them.
+        """
+        super().__init__(results, postprocess_fn)
 
     def get_metric_result(
         self,
@@ -730,7 +779,9 @@ class RegressionAnalyzer(_TrainAnalyzer):
                 col=i % cols + 1
             )
             try:
-                pred = np.array(self.results[stage]['pred'][epoch])
+                pred = self.results[stage]['pred'][epoch]
+                if self.postprocess_fn:
+                    pred = self.postprocess_fn(pred)
             except IndexError:
                 raise ValueError(f"There is no `{epoch}` epoch in "
                                  f"`{stage}` stage!")
@@ -766,7 +817,9 @@ class RegressionAnalyzer(_TrainAnalyzer):
 
         for epoch in epochs:
             try:
-                pred = np.array(self.results[stage]['pred'][epoch])
+                pred = self.results[stage]['pred'][epoch]
+                if self.postprocess_fn:
+                    pred = self.postprocess_fn(pred)
             except IndexError:
                 raise ValueError(f"There is no `{epoch}` epoch in "
                                  f"`{stage}` stage!")
@@ -803,3 +856,188 @@ class RegressionAnalyzer(_TrainAnalyzer):
         self.plot_pred(stage)
         self.plot_hist(stage)
         self.plot_kde(stage)
+
+
+class MulticlassAnalyzer(_TrainAnalyzer):
+    """
+    A class used to analyze info about trained multiclassification model
+
+    Attributes:
+        `results` (dict): Dictionary with results per each stage
+        after training. Keys are `cv`, `test` and `final`.
+        Main keys for each stage are `losses`, `metrics`, `best_result`
+        `time`, `ids`, `true` and `pred`
+        `postprocess_fn` (callable): Function that takes list with
+        model outputs from `pred` key for each stage in `results`
+        and somehow processes them.
+
+    Methods:
+        `get_stages()`: Gets list of stages
+        `get_metrics()`: Gets list of metrics used in training
+        `get_folds()`: Gets number of folds used in training
+        `get_epochs(stage)`: Gets number of epochs for stage
+        `get_time()`: Gets train time in seconds for all stages
+        `get_df_pred(stage)`: Gets dataframe with predictions
+        `get_df_metrics(stages)`: Gets dataframe with metrics
+        `get_metric_result(stage, metric, **kwargs)`: Gets result for metric
+        `plot_losses(stage, fold)`: Plots losses
+        `plot_metrics(stage, metrics, fold)`: Plots metrics
+        `plot_pred_sample(stage, id)`: Plots predictions over epochs
+        for one unique id
+        `plot_confusion_matrix(stage)`: Plots confusion matrix
+        `plot_confusion_matrix_per_epoch(stage, epochs)`: Plots confusion
+        matrix per epochs
+        `plot_all(stage)`: Plots main charts (losses, all metrics,
+        confusion matrix)
+        `set_plotly_args(**kwargs)`: Sets args for plotly charts
+    """
+
+    def __init__(
+        self,
+        results: Dict[str, Dict[str, Any]],
+        postprocess_fn: Union[None, Callable[[List], List]] = None
+    ):
+        """
+        Args:
+            `results` (dict): Dictionary with results per each stage
+            after training. Keys are `cv`, `test` and `final` and
+            values are dicts with results for each stage (which contain
+            lossses for each epoch inside `losses`, dict with metrics
+            for each epoch inside `metrics`, best epoch and best metrics
+            inside `best_result`, training time inside `time`,
+            list with unique ids inside `ids`, list with true values
+            inside `true` and list with model outputs for each
+            epoch inside `pred`)
+            `postprocess_fn` (callable): Function that takes list with
+            model outputs from `pred` key for each stage in `results`
+            and somehow processes them. For multiclassification problem
+            it is important to have exact class as final output. So,
+            for example, if you have list of logits as your model output,
+            define function that will convert your logits into belonging
+            to some class (just maximum of these logits)
+            (default is `None`)
+        """
+        super().__init__(results, postprocess_fn)
+
+    def get_metric_result(
+        self,
+        stage: str,
+        metric: Callable[[List[float], List[float]], float],
+        **kwargs
+    ):
+        """
+        Gets result for specific metric
+
+        Args:
+            `stage` (str): One of stage from `get_stages()` method
+            `metric` (callable): Function that takes `y_true` and `y_pred`
+            in this order and gives float as output
+            `**kwargs`: extra arguments for `metric` function
+        """
+        df = self.get_df_pred(stage)
+        return metric(df["True"], df["Pred"], **kwargs)
+
+    def plot_confusion_matrix(self, stage: str):
+        """
+        Plots confusion matrix
+
+        Args:
+            `stage` (str): One of stage from `get_stages()` method
+        """
+        df = self.get_df_pred(stage)
+        df["Pred_"] = df["Pred"].round()
+
+        cm = confusion_matrix(df["True"], df["Pred_"])
+        axes = [f"Class {i}" for i in range(len(cm))]
+
+        fig = ff.create_annotated_heatmap(
+            cm,
+            x=axes,
+            y=axes,
+            colorscale='Viridis',
+            annotation_text=None
+        )
+
+        fig.update_layout(
+            **self.plotly_args,
+            title_text=f'Confusion Matrix (stage: {stage})'
+        )
+        fig.update_yaxes(categoryorder='array', categoryarray=axes[::-1])
+        # fig['data'][0]['showscale'] = True
+        fig.show()
+
+    def plot_confusion_matrix_per_epoch(self, stage: str, epochs: List[int]):
+        """
+        Plots confusion matrix per epochs
+
+        Args:
+            `stage` (str): One of stage from `get_stages()` method
+            `epochs` (list): List with epochs for plotting
+            (epochs counter started from 0). Examples are `[0, 24, 49, 74, 99]`
+            or `range(9, self.get_epochs("test"), 10)` (plot every 10th epoch)
+        """
+        df = self.get_df_pred(stage)
+
+        n_plots = len(epochs)
+        cols = 4 if n_plots > 4 else n_plots
+        rows = n_plots // cols if n_plots % cols == 0 else n_plots // cols + 1
+        annotations = []
+
+        subplot_titles = []
+        for epoch in epochs:
+            subplot_titles.append(f"Epoch {epoch}")
+
+        fig = make_subplots(
+            rows=rows,
+            cols=cols,
+            subplot_titles=subplot_titles
+        )
+
+        for i, epoch in enumerate(epochs):
+            try:
+                pred = self.results[stage]['pred'][epoch]
+                if self.postprocess_fn:
+                    pred = self.postprocess_fn(pred)
+            except IndexError:
+                raise ValueError(f"There is no `{epoch}` epoch in "
+                                 f"`{stage}` stage!")
+            cm = confusion_matrix(df["True"], pred)
+            axes = [f"Class {i}" for i in range(len(cm))]
+            fig_heatmap = ff.create_annotated_heatmap(
+                cm,
+                x=axes,
+                y=axes,
+                colorscale='Viridis',
+                annotation_text=None
+            )
+            fig.add_trace(
+                fig_heatmap.data[0],
+                row=i // cols + 1,
+                col=i % cols + 1
+            )
+            annotation_epoch = list(fig_heatmap.layout.annotations)
+            for k in range(len(annotation_epoch)):
+                if i > 0:
+                    annotation_epoch[k]['xref'] = f'x{i+1}'
+                    annotation_epoch[k]['yref'] = f'y{i+1}'
+            annotations += annotation_epoch
+
+        for annotation in annotations:
+            fig.add_annotation(annotation)
+        fig.update_layout(
+            **self.plotly_args,
+            title_text=f"Confusion Matrix Per Epoch (stage: {stage})"
+        )
+        fig.update_yaxes(categoryorder='array', categoryarray=axes[::-1])
+        fig.show()
+
+    def plot_all(self, stage):
+        """
+        Plots main charts (losses, all metrics, confusion matrix)
+
+        Args:
+            `stage` (str): One of stage from `get_stages()` method
+        """
+        self.plot_losses(stage)
+        self.plot_metrics(stage, self.get_metrics())
+        self.plot_confusion_matrix(stage)

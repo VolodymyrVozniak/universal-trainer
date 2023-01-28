@@ -333,7 +333,7 @@ class BinaryPreproc(_Preproc):
 
 class RegressionPreproc(_Preproc):
     """
-    A class used to preprocess binary data
+    A class used to preprocess regression data
 
     Attributes:
         `df` (pd.DataFrame): Dataframe with unique ids,
@@ -368,7 +368,6 @@ class RegressionPreproc(_Preproc):
         Prepares targets
 
         Args:
-            `target_col` (str): Dataframe column to use as targets
             `log` (bool): Flag to use natural log on data.
             Hint: it is useful to log data if we have a big range
             `quantiles` (list): If specified cut tails with passed values
@@ -409,3 +408,48 @@ class RegressionPreproc(_Preproc):
             labels=False,
             duplicates='drop'
         )
+
+
+class MulticlassPreproc(_Preproc):
+    """
+    A class used to preprocess multiclassification data
+
+    Attributes:
+        `df` (pd.DataFrame): Dataframe with unique ids,
+        input and prepared targets
+        `targets` (dict): Prepared targets
+        `features` (dict): Features for training
+        `split` (dict): Prepared splits
+        `plotly_args` (dcit): Dict with args for plotly charts
+
+    Methods:
+        `prepare_targets()`: Prepares targets
+        `plot_targets(prepared)`: Plots targets
+        `set_features()`: Sets features for training
+        `random_split(test_size, n_folds, val_size, seed)`: Splits data
+        in random mode
+        `get_split_info()`: Gets split's info as dataframe
+        `plot_split_targets(prepared)`: Plots split targets
+        `set_plotly_args(**kwargs)`: Sets args for plotly charts
+    """
+
+    def __init__(self, ids_to_targets: Dict[Union[int, str], float]):
+        super().__init__(ids_to_targets)
+
+    # Work with targets
+
+    def prepare_targets(self):
+        """Prepares targets"""
+        targets = self.df["Input Targets"].astype('float32')
+
+        self.targets = dict(zip(self.df["ID"], targets))
+        self.df["Prepared Targets"] = targets
+
+        print("[INFO] Prepared targets were successfully saved "
+              "to `self.targets`!")
+
+    # Work with splits
+
+    @staticmethod
+    def _get_stratify(df: pd.DataFrame):
+        return df["Prepared Targets"]

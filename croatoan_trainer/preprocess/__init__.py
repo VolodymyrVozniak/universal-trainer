@@ -1,1 +1,1 @@
-from .preprocessor import BinaryPreproc, RegressionPreproc
+from .preprocessor import BinaryPreproc, RegressionPreproc, MulticlassPreproc

@@ -28,14 +28,23 @@ def train_epoch(
         y = y.float().to(DEVICE)
 
         optimizer.zero_grad()
-        y_train_pred = model(features).reshape(-1)
-        train_loss = criterion(y_train_pred, y)
-        train_loss.backward()
+        y_pred_loader = model(features)
+
+        try:
+            loss = criterion(y_pred_loader, y)
+        except RuntimeError:
+            y = y.long()
+            loss = criterion(y_pred_loader, y)
+        except ValueError:
+            y_pred_loader = y_pred_loader.reshape(-1)
+            loss = criterion(y_pred_loader, y)
+
+        loss.backward()
         optimizer.step()
 
-        losses.append(train_loss.item() * y.size(0))
+        losses.append(loss.item() * y.size(0))
         y_true.append(y)
-        y_pred.append(y_train_pred)
+        y_pred.append(y_pred_loader)
 
     y_true = torch.cat(y_true, dim=0).detach().cpu()
     y_pred = torch.cat(y_pred, dim=0).detach().cpu()
@@ -59,12 +68,20 @@ def val_epoch(
         y = y.float().to(DEVICE)
 
         with torch.no_grad():
-            y_val_pred = model(features).reshape(-1)
-            val_loss = criterion(y_val_pred, y)
+            y_pred_loader = model(features)
 
-        losses.append(val_loss.item() * y.size(0))
+            try:
+                loss = criterion(y_pred_loader, y)
+            except RuntimeError:
+                y = y.long()
+                loss = criterion(y_pred_loader, y)
+            except ValueError:
+                y_pred_loader = y_pred_loader.reshape(-1)
+                loss = criterion(y_pred_loader, y)
+
+        losses.append(loss.item() * y.size(0))
         y_true.append(y)
-        y_pred.append(y_val_pred)
+        y_pred.append(y_pred_loader)
 
     y_true = torch.cat(y_true, dim=0).detach().cpu()
     y_pred = torch.cat(y_pred, dim=0).detach().cpu()
@@ -124,7 +141,7 @@ def train_val(
         metrics['train'].append(metrics_train)
         metrics[stage].append(metrics_val)
 
-        pred.append(y_pred_val.numpy().astype(float).tolist())
+        pred.append(y_pred_val.tolist())
 
         if epoch % verbose == 0 or epoch == epochs - 1:
             logging.info(log_template.format(
@@ -151,7 +168,7 @@ def train_val(
         "metrics": metrics[stage][best_epoch]
     }
 
-    true = y_true_val.numpy().astype(float).tolist()
+    true = y_true_val.tolist()
     ids = loaders[1].dataset.ids
     end_time = time.time() - start_time
 
@@ -280,7 +297,7 @@ def run_cv(
     for i in ["losses", "metrics", "best_result", "time"]:
         all_results[i] = locals()[i]
 
-    all_pred = list(map(list, all_pred))
+    all_pred = all_pred.tolist()
     all_results["ids"] = all_ids
     all_results["true"] = all_true
     all_results["pred"] = all_pred
