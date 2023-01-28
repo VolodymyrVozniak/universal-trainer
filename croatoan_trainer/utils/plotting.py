@@ -16,7 +16,9 @@ def plot_targets_hist(
     fig = px.histogram(df, x=target_column)
     fig.update_layout(
         **plotly_args,
-        title_text=f"{target_column} Histogram"
+        title_text=f"{target_column} Histogram",
+        xaxis_title=target_column,
+        yaxis_title="Count"
     )
     fig.show()
 
@@ -47,17 +49,23 @@ def plot_split_targets_hist(
     for fold in range(folds):
         subplot_titles += [f"Train_{fold}", f"Val_{fold}"]
 
-    fig = make_subplots(rows=rows, cols=cols,
-                        x_title=target_column, y_title="Count",
-                        subplot_titles=subplot_titles)
+    fig = make_subplots(
+        rows=rows,
+        cols=cols,
+        subplot_titles=subplot_titles
+    )
 
     fig.add_trace(
         go.Histogram(x=targets_train, name="Train"),
-        row=1, col=1)
+        row=1,
+        col=1
+    )
 
     fig.add_trace(
         go.Histogram(x=targets_test, name="Test"),
-        row=1, col=2)
+        row=1,
+        col=2
+    )
 
     i = 0
     for y in range(1, rows+1):
@@ -72,13 +80,16 @@ def plot_split_targets_hist(
             targets = df[df[main_column].isin(ids)][target_column]
             fig.add_trace(
                 go.Histogram(x=targets, name=f"{stage}_{i}".capitalize()),
-                row=y, col=x
+                row=y,
+                col=x
             )
             if x % 2 == 0:
                 i += 1
 
     fig.update_layout(
         **plotly_args,
-        title_text=f"{target_column} Histograms for Train-Test and CV Splits"
+        title_text=f"{target_column} Histograms for Train-Test and CV Splits",
+        xaxis_title=target_column,
+        yaxis_title="Count"
     )
     fig.show()
