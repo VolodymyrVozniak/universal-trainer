@@ -19,7 +19,7 @@ class Trainer():
         or `MulticlassPreproc` class object with preprocessed data.
         `dataset_class` (CroatoanDataset): `CroatoanDataset` class or class
         that inherit `CroatoanDataset`.
-        `loader_class` (torch.utils.data.Loader): Class for DataLoader.
+        `loader_class` (torch.utils.data.DataLoader): Class for DataLoader.
         `model_class` (torch.nn.Module): Class for torch model.
         `optimizer_class` (torch.optim.Optimizer): Any class for optimizer
         from torch.
@@ -30,10 +30,10 @@ class Trainer():
         `main_metric` (str): Main metric (must be one of metrics defined in
         `get_metrics` function). This metric will be used to choose
         the best epoch on CV.
-        `direction` (str): Direction in which we want to optimize.
+        `direction` (str): Direction in which we want to optimize
         `main_metric`. For example, `"minimize"` for regression problem and
         `mae` as `main_metric` or `"maximize"` for binary problem
-        and `f1` as `main_metrics`.
+        and `f1` as `main_metric`.
 
     Methods:
         `train(params)`: Trains model. Trains on CV, chooses best epoch,

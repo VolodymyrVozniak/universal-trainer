@@ -17,18 +17,18 @@ from croatoan_trainer.train.metrics import get_metrics_binary, \
 
 
 if __name__ == "__main__":
-    data = load_iris()
+    data = load_diabetes()
     x = data['data']
     y = data['target']
 
     ids_to_features = dict(zip(np.arange(len(y)), x))
     ids_to_targets = dict(zip(np.arange(len(y)), y))
 
-    preproc = MulticlassPreproc(ids_to_features, ids_to_targets)
+    preproc = RegressionPreproc(ids_to_features, ids_to_targets)
     # preproc.plot_targets(prepared=False)
     # preproc.prepare_targets(reverse=True)
-    # preproc.prepare_targets(log=False, quantiles=None)
-    preproc.prepare_targets()
+    preproc.prepare_targets(log=False, quantiles=None)
+    # preproc.prepare_targets()
     # preproc.plot_targets(prepared=True)
     preproc.random_split()
     # preproc.plot_split_targets(prepared=False)
@@ -39,11 +39,11 @@ if __name__ == "__main__":
         preprocessed_data=preproc,
         dataset_class=CroatoanDataset,
         loader_class=DataLoader,
-        model_class=MulticlassSimpleMLP,
+        model_class=RegressionSimpleMLP,
         optimizer_class=Adam,
-        criterion=torch.nn.CrossEntropyLoss(),
-        get_metrics=get_metrics_multiclass,
-        main_metric="f1",
+        criterion=torch.nn.MSELoss(),
+        get_metrics=get_metrics_regression,
+        main_metric="r2",
         direction="maximize"
     )
 
@@ -51,7 +51,7 @@ if __name__ == "__main__":
         "model": {
             "in_features": x.shape[1],
             "hidden_features": 20,
-            "output_features": 3,
+            # "output_features": 3,
             "dropout": 0.25
         },
         "optimizer": {
@@ -66,4 +66,6 @@ if __name__ == "__main__":
     def postprocess_fn(model_output):
         return np.argmax(model_output, axis=1)
 
-    analyzer = MulticlassAnalyzer(results, postprocess_fn)
+    analyzer = RegressionAnalyzer(results)
+    analyzer.plot_hist_per_epoch("test", [0, 25, 36, 56])
+    analyzer.plot_kde_per_epoch("test", [0, 25, 36, 56])

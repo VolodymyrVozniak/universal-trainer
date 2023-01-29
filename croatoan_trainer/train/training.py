@@ -35,9 +35,6 @@ def train_epoch(
         except RuntimeError:
             y = y.long()
             loss = criterion(y_pred_loader, y)
-        except ValueError:
-            y_pred_loader = y_pred_loader.reshape(-1)
-            loss = criterion(y_pred_loader, y)
 
         loss.backward()
         optimizer.step()

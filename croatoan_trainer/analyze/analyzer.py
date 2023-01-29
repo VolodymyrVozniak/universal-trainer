@@ -424,7 +424,7 @@ class BinaryAnalyzer(_TrainAnalyzer):
             except IndexError:
                 raise ValueError(f"There is no `{epoch}` epoch in "
                                  f"`{stage}` stage!")
-            cm = confusion_matrix(df["True"], pred.round())
+            cm = confusion_matrix(df["True"], np.round(pred))
             text = [[f"{cm[0][0]} (TN)", f"{cm[0][1]} (FP)"],
                     [f"{cm[1][0]} (FN)", f"{cm[1][1]} (TP)"]]
             fig_heatmap = ff.create_annotated_heatmap(
@@ -645,7 +645,7 @@ class RegressionAnalyzer(_TrainAnalyzer):
             epoch inside `pred`)
             `postprocess_fn` (callable): Function that takes list with
             model outputs from `pred` key for each stage in `results`
-            and somehow processes them.
+            and somehow processes them (default is `None`).
         """
         super().__init__(results, postprocess_fn)
 
@@ -769,6 +769,8 @@ class RegressionAnalyzer(_TrainAnalyzer):
         fig = make_subplots(
             rows=rows,
             cols=cols,
+            x_title="Target",
+            y_title="Count",
             subplot_titles=subplot_titles
         )
 
@@ -795,8 +797,6 @@ class RegressionAnalyzer(_TrainAnalyzer):
         fig.update_layout(
             **self.plotly_args,
             title_text=f"Target Histograms Per Epoch (stage: {stage})",
-            xaxis_title="Target",
-            yaxis_title="Count"
         )
         fig.show()
 

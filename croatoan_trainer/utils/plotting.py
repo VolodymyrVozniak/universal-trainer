@@ -52,6 +52,8 @@ def plot_split_targets_hist(
     fig = make_subplots(
         rows=rows,
         cols=cols,
+        x_title=target_column,
+        y_title="Count",
         subplot_titles=subplot_titles
     )
 
@@ -89,7 +91,5 @@ def plot_split_targets_hist(
     fig.update_layout(
         **plotly_args,
         title_text=f"{target_column} Histograms for Train-Test and CV Splits",
-        xaxis_title=target_column,
-        yaxis_title="Count"
     )
     fig.show()

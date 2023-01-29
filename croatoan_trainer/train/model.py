@@ -35,7 +35,7 @@ class BinarySimpleMLP(Module):
         )
 
     def forward(self, data: torch.Tensor) -> torch.Tensor:
-        return self.model(data)
+        return self.model(data).reshape(-1)
 
 
 class RegressionSimpleMLP(Module):
@@ -68,7 +68,7 @@ class RegressionSimpleMLP(Module):
         )
 
     def forward(self, data: torch.Tensor) -> torch.Tensor:
-        return self.model(data)
+        return self.model(data).reshape(-1)
 
 
 class MulticlassSimpleMLP(Module):

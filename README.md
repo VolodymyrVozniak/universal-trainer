@@ -228,7 +228,7 @@ There is 1 main class for training:
 Training pipeline
 1. Trains in CV mode (meaning trains model on train set of specific fold and checks model performance on val set of specific fold with passed value for epochs and gets avarage performance on each epoch by avaraging scores for all folds), chooses best epoch and saves all results (losses, metrics on each epoch for train and val sets, best result, training time, unique ids, true values and predicted values on each epoch for val set). Results on each fold are also saved.
 2. Trains in test mode (meaning trains model on train set and checks model performance on test set with chosen number of epochs on the CV stage) and saves all results (losses, metrics on each epoch for train and test sets, best result, training time, unique ids, true values and predicted values on each epoch for test set).
-3. Trains in final mode (meaning trains model on all data with chosen number of epochs on the CV stage) and saves all results (losses, metrics on each epoch for train and test sets, best result, training time, unique ids, true values and predicted values on each epoch for test set). Here train and test are the same: all possible data, but the metrics can differ, because train set is always shuffled, while test set don't.
+3. Trains in final mode (meaning trains model on all data with chosen number of epochs on the CV stage) and saves all results (losses, metrics on each epoch for train and test sets, best result, training time, unique ids, true values and predicted values on each epoch for test set). Here train and test are the same: all possible data, but the metrics can differ, because train set is always shuffled, while test set isn't.
 
 Examples
 
@@ -381,7 +381,9 @@ There are 3 main classes for analyzing:
 Analyzing pipeline
 1. Initialize analyze class with results got after training.
 2. Plot different charts and analyze results.
-3. Get dataframe with final metrics for each stage (CV, test or final).
+3. Get dataframe with final metrics for each stage (`cv`, `test` or `final`).
+
+<ins>**REMINDER!**</ins> The main stage is always `test`, not `final` (`test` is how your model performs on data that it didn't see; `final` is how your model performs on data that it used for training).
 
 Examples
 
