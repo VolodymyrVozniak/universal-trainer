@@ -4,6 +4,7 @@
 <ul>
   <li><a href="#installation">Installation</a></li>
   <li><a href="#dependencies">Dependencies</a></li>
+  <li><a href="#tutorials">Tutorials</a></li>
   <li>
     <a href="#usage">Usage</a>
     <ul>
@@ -34,6 +35,14 @@ scikit-learn>=1.2.0
 pandas>=1.5.2
 plotly>=5.7.0
 ```
+
+</br>
+
+# Tutorials
+
+1. For binary problem check [this tutorial](https://drive.google.com/file/d/1s21Mn0ieNo5YJ4qLNDFBPEUTC874UfcK/view?usp=share_link)
+2. For regression problem check [this tutorial](https://drive.google.com/file/d/1PA7bFGQRGazfSBhF8yQoAo7ocq0UGWi-/view?usp=share_link)
+3. For multiclassification problem check [this tutorial](https://drive.google.com/file/d/1zW_I4JRRvCOoo5oNB1U3fWCfaJC8gB6s/view?usp=share_link)
 
 </br>
 
@@ -110,7 +119,7 @@ preproc.plot_split_targets(prepared=True)
 split_info = preproc.get_split_info()
 ```
 
-For more details, check [tutorial](https://github.com/VolodymyrVozniak/universal-trainer/blob/master/tutorials/Binary.ipynb)
+For more details check [tutorial](https://drive.google.com/file/d/1s21Mn0ieNo5YJ4qLNDFBPEUTC874UfcK/view?usp=share_link)
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -164,7 +173,7 @@ preproc.plot_split_targets(prepared=True)
 split_info = preproc.get_split_info()
 ```
 
-For more details, check [tutorial](https://github.com/VolodymyrVozniak/universal-trainer/blob/master/tutorials/Regression.ipynb)
+For more details check [tutorial](https://drive.google.com/file/d/1PA7bFGQRGazfSBhF8yQoAo7ocq0UGWi-/view?usp=share_link)
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -218,7 +227,7 @@ preproc.plot_split_targets(prepared=True)
 split_info = preproc.get_split_info()
 ```
 
-For more details, check [tutorial](https://github.com/VolodymyrVozniak/universal-trainer/blob/master/tutorials/Multiclassification.ipynb)
+For more details check [tutorial](https://drive.google.com/file/d/1zW_I4JRRvCOoo5oNB1U3fWCfaJC8gB6s/view?usp=share_link)
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -276,7 +285,7 @@ params = {
 results, model_weights = trainer.train(params)
 ```
 
-For more details, check [tutorial](https://github.com/VolodymyrVozniak/universal-trainer/blob/master/tutorials/Binary.ipynb)
+For more details check [tutorial](https://drive.google.com/file/d/1s21Mn0ieNo5YJ4qLNDFBPEUTC874UfcK/view?usp=share_link)
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -322,7 +331,7 @@ params = {
 results, model_weights = trainer.train(params)
 ```
 
-For more details, check [tutorial](https://github.com/VolodymyrVozniak/universal-trainer/blob/master/tutorials/Regression.ipynb)
+For more details check [tutorial](https://drive.google.com/file/d/1PA7bFGQRGazfSBhF8yQoAo7ocq0UGWi-/view?usp=share_link)
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -369,7 +378,7 @@ params = {
 results, model_weights = trainer.train(params)
 ```
 
-For more details, check [tutorial](https://github.com/VolodymyrVozniak/universal-trainer/blob/master/tutorials/Multiclassification.ipynb)
+For more details check [tutorial](https://drive.google.com/file/d/1zW_I4JRRvCOoo5oNB1U3fWCfaJC8gB6s/view?usp=share_link)
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -404,7 +413,7 @@ analyzer.plot_all("final")
 metrics = get_df_metrics()
 ```
 
-For more details, check [tutorial](https://github.com/VolodymyrVozniak/universal-trainer/blob/master/tutorials/Binary.ipynb)
+For more details check [tutorial](https://drive.google.com/file/d/1s21Mn0ieNo5YJ4qLNDFBPEUTC874UfcK/view?usp=share_link)
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -423,7 +432,7 @@ analyzer.plot_all("final")
 metrics = get_df_metrics()
 ```
 
-For more details, check [tutorial](https://github.com/VolodymyrVozniak/universal-trainer/blob/master/tutorials/Regression.ipynb)
+For more details check [tutorial](https://drive.google.com/file/d/1PA7bFGQRGazfSBhF8yQoAo7ocq0UGWi-/view?usp=share_link)
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -446,6 +455,6 @@ analyzer.plot_all("final")
 metrics = get_df_metrics()
 ```
 
-For more details, check [tutorial](https://github.com/VolodymyrVozniak/universal-trainer/blob/master/tutorials/Multiclassification.ipynb)
+For more details check [tutorial](https://drive.google.com/file/d/1zW_I4JRRvCOoo5oNB1U3fWCfaJC8gB6s/view?usp=share_link)
 
 <p align="right">(<a href="#top">back to top</a>)</p>
