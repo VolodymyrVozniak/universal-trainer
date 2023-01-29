@@ -12,22 +12,35 @@ from ..utils.plotting import plot_targets_hist, plot_split_targets_hist
 class _Preproc(_Base):
     def __init__(
         self,
+        ids_to_features: Dict[Union[int, str], List[float]],
         ids_to_targets: Dict[Union[int, str], float],
     ):
         """
         Args:
+            `ids_to_features` (dict): Dict with unique ids as keys
+            and features as values (that will be used in torch Dataset
+            while training model).
             `ids_to_targets` (dict): Dict with unique ids as keys
-            and input targets as values
-        """
-        self.df = self._make_df(ids_to_targets)
+            and input targets as values.
 
+        Raises:
+            `ValueError`: If there are duplicates in `ids_to_targets` or
+            `ids_to_features` dicts keys.
+        """
+        unique_ids = list(ids_to_features.keys())
+        if len(set(unique_ids)) != len(unique_ids):
+            raise ValueError("There are duplicates in unique ids! "
+                             "Please check it and assign new unique "
+                             "ids without duplicates!")
+        self.features = ids_to_features
+
+        self.df = self._make_df(ids_to_targets)
         if self.df["ID"].nunique() != len(self.df):
             raise ValueError("There are duplicates in unique ids! "
                              "Please check it and assign new unique "
                              "ids without duplicates!")
 
         self.targets = {}
-        self.features = {}
         self.split = defaultdict(dict)
 
         self.set_plotly_args(font_size=14, template="plotly_dark", bargap=0.2)
@@ -49,12 +62,12 @@ class _Preproc(_Base):
 
     def plot_targets(self, prepared: bool = False):
         """
-        Plots targets
+        Plots targets.
 
         Args:
             `prepared` (bool): Flag to plot prepared targets.
             If `True` plot prepared targets, plot input targets otherwise
-            (default is `False`)
+            (default is `False`).
         """
         if prepared:
             self._checker(self.targets, "prepare_targets")
@@ -67,22 +80,6 @@ class _Preproc(_Base):
             target_column=target_col,
             plotly_args=self.plotly_args
         )
-
-    # Work with features
-
-    def set_features(
-        self,
-        ids_to_features: Dict[Union[int, str], List[float]]
-    ):
-        """
-        Sets features for training
-
-        Args:
-            `ids_to_features` (dict): Dict with unique ids as keys and features
-            (that will be used in torch Dataset while training model) as values
-        """
-        self.features = ids_to_features
-        print("[INFO] Features were successfully saved to `self.features`!")
 
     # Work with splits
 
@@ -163,16 +160,16 @@ class _Preproc(_Base):
         Splits data in random mode. Keeps only unique ids from
         `self.targets` keys after preparing targets in the correct sets
         (meaning one id only in train or test set for train-test
-        and one id in train set or val set for CV)
+        and one id in train set or val set for CV).
 
         Args:
-            `test_size` (float): Fraction of data for test (default is `0.2`)
+            `test_size` (float): Fraction of data for test (default is `0.2`).
             `n_folds` (int): Number of CV folds.
             Can be `1` meaning validation set.
-            If `1`, `val_size` must be specified (default is `5`)
+            If `1`, `val_size` must be specified (default is `5`).
             `val_size` (float): Fraction of data for validation.
-            Must be specified if `n_folds` == `1` (default is `None`)
-            `seed` (int): Seed for splitting (default is `51983`)
+            Must be specified if `n_folds` == `1` (default is `None`).
+            `seed` (int): Seed for splitting (default is `51983`).
         """
         params = locals()
         params.pop("self")
@@ -216,10 +213,10 @@ class _Preproc(_Base):
 
     def get_split_info(self) -> pd.DataFrame:
         """
-        Gets split's info as dataframe
+        Gets split's info as dataframe.
 
         Returns:
-            pd.DataFrame: dataframe with split's info
+            pd.DataFrame: Dataframe with split's info.
         """
         self._checker(self.split, f"random_split")
 
@@ -247,12 +244,12 @@ class _Preproc(_Base):
 
     def plot_split_targets(self, prepared: bool = False):
         """
-        Plots split targets
+        Plots split targets.
 
         Args:
             `prepared` (bool): Flag to plot prepared targets.
             If `True` plot prepared targets, plot input targets otherwise
-            (default is `False`)
+            (default is `False`).
         """
         self._checker(self.split, f"random_split")
 
@@ -277,40 +274,43 @@ class _Preproc(_Base):
 
 class BinaryPreproc(_Preproc):
     """
-    A class used to preprocess binary data
+    A class used to preprocess binary data.
 
     Attributes:
+        `features` (dict): Features for training.
         `df` (pd.DataFrame): Dataframe with unique ids,
-        input and prepared targets
-        `targets` (dict): Prepared targets
-        `features` (dict): Features for training
-        `split` (dict): Prepared splits
-        `plotly_args` (dcit): Dict with args for plotly charts
+        input and prepared targets.
+        `targets` (dict): Prepared targets.
+        `split` (dict): Prepared splits.
+        `plotly_args` (dcit): Dict with args for plotly charts.
 
     Methods:
-        `prepare_targets(reverse)`: Prepares targets
-        `plot_targets(prepared)`: Plots targets
-        `set_features()`: Sets features for training
+        `prepare_targets(reverse)`: Prepares targets.
+        `plot_targets(prepared)`: Plots targets.
         `random_split(test_size, n_folds, val_size, seed)`: Splits data
-        in random mode
-        `get_split_info()`: Gets split's info as dataframe
-        `plot_split_targets(prepared)`: Plots split targets
-        `set_plotly_args(**kwargs)`: Sets args for plotly charts
+        in random mode.
+        `get_split_info()`: Gets split's info as dataframe.
+        `plot_split_targets(prepared)`: Plots split targets.
+        `set_plotly_args(**kwargs)`: Sets args for plotly charts.
     """
 
-    def __init__(self, ids_to_targets: Dict[Union[int, str], float]):
-        super().__init__(ids_to_targets)
+    def __init__(
+        self,
+        ids_to_features: Dict[Union[int, str], List[float]],
+        ids_to_targets: Dict[Union[int, str], float]
+    ):
+        super().__init__(ids_to_features, ids_to_targets)
 
     # Work with targets
 
     def prepare_targets(self, reverse: bool):
         """
-        Prepares targets
+        Prepares targets.
 
         Args:
             `reverse` (bool): Flag to reverse targets.
             Hint: it is useful to have more samples of 0 class,
-            because usually we are trying to optimize F1 metric
+            because usually we are trying to optimize F1 metric.
         """
         targets = self.df["Input Targets"].astype('float32')
 
@@ -333,29 +333,32 @@ class BinaryPreproc(_Preproc):
 
 class RegressionPreproc(_Preproc):
     """
-    A class used to preprocess regression data
+    A class used to preprocess regression data.
 
     Attributes:
+        `features` (dict): Features for training.
         `df` (pd.DataFrame): Dataframe with unique ids,
-        input and prepared targets
-        `targets` (dict): Prepared targets
-        `features` (dict): Features for training
-        `split` (dict): Prepared splits
-        `plotly_args` (dcit): Dict with args for plotly charts
+        input and prepared targets.
+        `targets` (dict): Prepared targets.
+        `split` (dict): Prepared splits.
+        `plotly_args` (dcit): Dict with args for plotly charts.
 
     Methods:
-        `prepare_targets(log, quantiles)`: Prepares targets
-        `plot_targets(prepared)`: Plots targets
-        `set_features()`: Sets features for training
+        `prepare_targets(log, quantiles)`: Prepares targets.
+        `plot_targets(prepared)`: Plots targets.
         `random_split(test_size, n_folds, val_size, seed)`: Splits data
-        in random mode
-        `get_split_info()`: Gets split's info as dataframe
-        `plot_split_targets(prepared)`: Plots split targets
-        `set_plotly_args(**kwargs)`: Sets args for plotly charts
+        in random mode.
+        `get_split_info()`: Gets split's info as dataframe.
+        `plot_split_targets(prepared)`: Plots split targets.
+        `set_plotly_args(**kwargs)`: Sets args for plotly charts.
     """
 
-    def __init__(self, ids_to_targets: Dict[Union[int, str], float]):
-        super().__init__(ids_to_targets)
+    def __init__(
+        self,
+        ids_to_features: Dict[Union[int, str], List[float]],
+        ids_to_targets: Dict[Union[int, str], float]
+    ):
+        super().__init__(ids_to_features, ids_to_targets)
 
     # Work with targets
 
@@ -365,17 +368,17 @@ class RegressionPreproc(_Preproc):
         quantiles: Union[None, List[float]] = None
     ):
         """
-        Prepares targets
+        Prepares targets.
 
         Args:
             `log` (bool): Flag to use natural log on data.
-            Hint: it is useful to log data if we have a big range
+            Hint: it is useful to log data if we have a big range.
             `quantiles` (list): If specified cut tails with passed values
             (meaning interprate left quantile as min value,
             right quantile as max value and replace targets
             that don't belong to this range with these values).
             Hint: specify this parameter if there are any kind of
-            outliers in the dataset (default is `None`)
+            outliers in the dataset (default is `None`).
         """
         targets = self.df["Input Targets"].astype('float32')
 
@@ -412,34 +415,37 @@ class RegressionPreproc(_Preproc):
 
 class MulticlassPreproc(_Preproc):
     """
-    A class used to preprocess multiclassification data
+    A class used to preprocess multiclassification data.
 
     Attributes:
+        `features` (dict): Features for training.
         `df` (pd.DataFrame): Dataframe with unique ids,
-        input and prepared targets
-        `targets` (dict): Prepared targets
-        `features` (dict): Features for training
-        `split` (dict): Prepared splits
-        `plotly_args` (dcit): Dict with args for plotly charts
+        input and prepared targets.
+        `targets` (dict): Prepared targets.
+        `split` (dict): Prepared splits.
+        `plotly_args` (dcit): Dict with args for plotly charts.
 
     Methods:
-        `prepare_targets()`: Prepares targets
-        `plot_targets(prepared)`: Plots targets
-        `set_features()`: Sets features for training
+        `prepare_targets()`: Prepares targets.
+        `plot_targets(prepared)`: Plots targets.
         `random_split(test_size, n_folds, val_size, seed)`: Splits data
-        in random mode
-        `get_split_info()`: Gets split's info as dataframe
-        `plot_split_targets(prepared)`: Plots split targets
-        `set_plotly_args(**kwargs)`: Sets args for plotly charts
+        in random mode.
+        `get_split_info()`: Gets split's info as dataframe.
+        `plot_split_targets(prepared)`: Plots split targets.
+        `set_plotly_args(**kwargs)`: Sets args for plotly charts.
     """
 
-    def __init__(self, ids_to_targets: Dict[Union[int, str], float]):
-        super().__init__(ids_to_targets)
+    def __init__(
+        self,
+        ids_to_features: Dict[Union[int, str], List[float]],
+        ids_to_targets: Dict[Union[int, str], float]
+    ):
+        super().__init__(ids_to_features, ids_to_targets)
 
     # Work with targets
 
     def prepare_targets(self):
-        """Prepares targets"""
+        """Prepares targets."""
         targets = self.df["Input Targets"].astype('float32')
 
         self.targets = dict(zip(self.df["ID"], targets))

@@ -11,36 +11,36 @@ from ..preprocess.preprocessor import _Preproc
 
 class Trainer():
     """
-    A class used to train model on data from
-    `BinaryPreproc` or `RegressionPreproc` class
+    A class used to train model on data from `BinaryPreproc`,
+    `RegressionPreproc` or `MulticlassPreproc` class.
 
     Attributes:
-        `preprocessed_data` (_Preproc): `BinaryPreproc` or `RegressionPreproc`
-        class object with preprocessed data
+        `preprocessed_data` (_Preproc): `BinaryPreproc`, `RegressionPreproc`
+        or `MulticlassPreproc` class object with preprocessed data.
         `dataset_class` (CroatoanDataset): `CroatoanDataset` class or class
-        that inherit `CroatoanDataset`
-        `loader_class` (torch.utils.data.Loader): Class for DataLoader
-        `model_class` (torch.nn.Module): Class for torch model
+        that inherit `CroatoanDataset`.
+        `loader_class` (torch.utils.data.Loader): Class for DataLoader.
+        `model_class` (torch.nn.Module): Class for torch model.
         `optimizer_class` (torch.optim.Optimizer): Any class for optimizer
-        from torch
-        `criterion` (torch.nn.modules.loss._Loss): Any loss from torch
+        from torch.
+        `criterion` (torch.nn.modules.loss._Loss): Any loss from torch.
         `get_metrics` (callable): Function that takes two torch tensors
         (real and predicted values), computes some metrics and saves them
-        to dict with metric's name as keys and metric's values as values
+        to dict with metric's name as keys and metric's values as values.
         `main_metric` (str): Main metric (must be one of metrics defined in
         `get_metrics` function). This metric will be used to choose
-        the best epoch on CV
-        `direction` (str): Direction in which we want to optimize
+        the best epoch on CV.
+        `direction` (str): Direction in which we want to optimize.
         `main_metric`. For example, `"minimize"` for regression problem and
         `mae` as `main_metric` or `"maximize"` for binary problem
-        and `f1` as `main_metrics`
+        and `f1` as `main_metrics`.
 
     Methods:
         `train(params)`: Trains model. Trains on CV, chooses best epoch,
         then trains on test with exactly that number of epochs
         and then trains final model on train + test data and returns
-        training results for each stage and model weights for final model
-        `print_logs()`: Prints training logs
+        training results for each stage and model weights for final model.
+        `print_logs()`: Prints training logs.
     """
 
     def __init__(
@@ -57,25 +57,26 @@ class Trainer():
     ):
         """
         Args:
-            `preprocessed_data` (_Preproc): `BinaryPreproc` or
-            `RegressionPreproc` class object with preprocessed data
+            `preprocessed_data` (_Preproc): `BinaryPreproc`,
+            `RegressionPreproc` or `MulticlassPreproc` class object with
+            preprocessed data.
             `dataset_class` (CroatoanDataset): `CroatoanDataset` class or class
-            that inherit `CroatoanDataset`
-            `loader_class` (torch.utils.data.Loader): Class for DataLoader
-            `model_class` (torch.nn.Module): Class for torch model
+            that inherit `CroatoanDataset`.
+            `loader_class` (torch.utils.data.Loader): Class for DataLoader.
+            `model_class` (torch.nn.Module): Class for torch model.
             `optimizer_class` (torch.optim.Optimizer): Any class for optimizer
-            from torch
-            `criterion` (torch.nn.modules.loss._Loss): Any loss from torch
+            from torch.
+            `criterion` (torch.nn.modules.loss._Loss): Any loss from torch.
             `get_metrics` (callable): Function that takes two torch tensors
             (real and predicted values), computes some metrics and saves them
-            to dict with metric's name as keys and metric's values as values
+            to dict with metric's name as keys and metric's values as values.
             `main_metric` (str): Main metric (must be one of metrics defined in
             `get_metrics` function). This metric will be used to choose
-            the best epoch on CV
-            `direction` (str): Direction in which we want to optimize
+            the best epoch on CV.
+            `direction` (str): Direction in which we want to optimize.
             `main_metric`. For example, `"minimize"` for regression problem and
             `mae` as `main_metric` or `"maximize"` for binary problem
-            and `f1` as `main_metrics`
+            and `f1` as `main_metrics`.
         """
         self.preprocessed_data = preprocessed_data
         self.dataset_class = dataset_class
@@ -104,9 +105,7 @@ class Trainer():
         )
 
     def print_logs(self):
-        """
-        Prints training logs
-        """
+        """Prints training logs."""
         with open("logs.log", "r") as file:
             file_content = file.read()
         print(file_content)
@@ -118,22 +117,22 @@ class Trainer():
         """
         Trains model.
         Trains on CV, chooses best epoch, then trains on test with exactly
-        that number of epochs and then trains final model on train + test data
+        that number of epochs and then trains final model on train + test data.
 
         Args:
             `params` (dict): Params for model with keys: `model`
             (kwargs for `self.model_class`), `optimizer` (kwargs for
-            `self.optimizer_class`), `batch_size` and `epochs`
+            `self.optimizer_class`), `batch_size` and `epochs`.
 
         Returns:
-            tuple: dictionary with `cv`, `test` and `final` as keys and
+            tuple: Dictionary with `cv`, `test` and `final` as keys and
             dict with results for each stage as values (which contains
             lossses for each epoch inside `losses`, dict with metrics returned
             by `self.get_metrics` function for each epoch inside `metrics`,
             best epoch and best metrics inside `best_result`, training time
             inside `time`, list with unique ids inside `ids`, list with real
             values inside `true` and list with model outputs for each
-            epoch inside `pred`) and model weights for final model
+            epoch inside `pred`) and model weights for final model.
         """
         self._init_logs(file=True, console=True)
 

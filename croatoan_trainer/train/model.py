@@ -7,7 +7,7 @@ class BinarySimpleMLP(Module):
     """
     Simple MLP for binary problem
     (2 hidden layers; dropout layers; ReLU activation and
-    Sigmoid activation at the end)
+    Sigmoid activation at the end).
     """
 
     def __init__(
@@ -18,9 +18,9 @@ class BinarySimpleMLP(Module):
     ):
         """
         Args:
-            `in_features` (int): Number of features for input
-            `hidden_features (ine)`: Number of features for hidden layers
-            `dropout` (float): Dropout for dropout layers
+            `in_features` (int): Number of features for input.
+            `hidden_features (ine)`: Number of features for hidden layers.
+            `dropout` (float): Dropout for dropout layers.
         """
         super().__init__()
         self.model = nn.Sequential(
@@ -41,7 +41,7 @@ class BinarySimpleMLP(Module):
 class RegressionSimpleMLP(Module):
     """
     Simple MLP for regression problem
-    (2 hidden layers; dropout layers; ReLU activation)
+    (2 hidden layers; dropout layers; ReLU activation).
     """
 
     def __init__(
@@ -52,9 +52,9 @@ class RegressionSimpleMLP(Module):
     ):
         """
         Args:
-            `in_features` (int): Number of features for input
-            `hidden_features` (int): Number of features for hidden layers
-            `dropout` (float): Dropout for dropout layers
+            `in_features` (int): Number of features for input.
+            `hidden_features` (int): Number of features for hidden layers.
+            `dropout` (float): Dropout for dropout layers.
         """
         super().__init__()
         self.model = nn.Sequential(
@@ -74,7 +74,7 @@ class RegressionSimpleMLP(Module):
 class MulticlassSimpleMLP(Module):
     """
     Simple MLP for multiclassification problem
-    (2 hidden layers; dropout layers; ReLU activation)
+    (2 hidden layers; dropout layers; ReLU activation).
     """
 
     def __init__(
@@ -86,10 +86,10 @@ class MulticlassSimpleMLP(Module):
     ):
         """
         Args:
-            `in_features` (int): Number of features for input
-            `hidden_features` (int): Number of features for hidden layers
-            `output_features` (int): Number of features for output
-            `dropout` (float): Dropout for dropout layers
+            `in_features` (int): Number of features for input.
+            `hidden_features` (int): Number of features for hidden layers.
+            `output_features` (int): Number of features for output.
+            `dropout` (float): Dropout for dropout layers.
         """
         super().__init__()
         self.model = nn.Sequential(
