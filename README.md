@@ -40,9 +40,9 @@ plotly>=5.7.0
 
 # Tutorials
 
-1. For binary problem check [this tutorial](https://drive.google.com/file/d/1s21Mn0ieNo5YJ4qLNDFBPEUTC874UfcK/view?usp=share_link)
-2. For regression problem check [this tutorial](https://drive.google.com/file/d/1PA7bFGQRGazfSBhF8yQoAo7ocq0UGWi-/view?usp=share_link)
-3. For multiclassification problem check [this tutorial](https://drive.google.com/file/d/1zW_I4JRRvCOoo5oNB1U3fWCfaJC8gB6s/view?usp=share_link)
+1. For binary problem check [this tutorial](https://colab.research.google.com/drive/1s21Mn0ieNo5YJ4qLNDFBPEUTC874UfcK)
+2. For regression problem check [this tutorial](https://colab.research.google.com/drive/1PA7bFGQRGazfSBhF8yQoAo7ocq0UGWi-)
+3. For multiclassification problem check [this tutorial](https://colab.research.google.com/drive/1zW_I4JRRvCOoo5oNB1U3fWCfaJC8gB6s)
 
 </br>
 
@@ -119,7 +119,7 @@ preproc.plot_split_targets(prepared=True)
 split_info = preproc.get_split_info()
 ```
 
-For more details check [tutorial](https://drive.google.com/file/d/1s21Mn0ieNo5YJ4qLNDFBPEUTC874UfcK/view?usp=share_link)
+For more details check [tutorial](https://colab.research.google.com/drive/1s21Mn0ieNo5YJ4qLNDFBPEUTC874UfcK)
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -173,7 +173,7 @@ preproc.plot_split_targets(prepared=True)
 split_info = preproc.get_split_info()
 ```
 
-For more details check [tutorial](https://drive.google.com/file/d/1PA7bFGQRGazfSBhF8yQoAo7ocq0UGWi-/view?usp=share_link)
+For more details check [tutorial](https://colab.research.google.com/drive/1PA7bFGQRGazfSBhF8yQoAo7ocq0UGWi-)
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -227,7 +227,7 @@ preproc.plot_split_targets(prepared=True)
 split_info = preproc.get_split_info()
 ```
 
-For more details check [tutorial](https://drive.google.com/file/d/1zW_I4JRRvCOoo5oNB1U3fWCfaJC8gB6s/view?usp=share_link)
+For more details check [tutorial](https://colab.research.google.com/drive/1zW_I4JRRvCOoo5oNB1U3fWCfaJC8gB6s)
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -285,7 +285,7 @@ params = {
 results, model_weights = trainer.train(params)
 ```
 
-For more details check [tutorial](https://drive.google.com/file/d/1s21Mn0ieNo5YJ4qLNDFBPEUTC874UfcK/view?usp=share_link)
+For more details check [tutorial](https://colab.research.google.com/drive/1s21Mn0ieNo5YJ4qLNDFBPEUTC874UfcK)
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -331,7 +331,7 @@ params = {
 results, model_weights = trainer.train(params)
 ```
 
-For more details check [tutorial](https://drive.google.com/file/d/1PA7bFGQRGazfSBhF8yQoAo7ocq0UGWi-/view?usp=share_link)
+For more details check [tutorial](https://colab.research.google.com/drive/1PA7bFGQRGazfSBhF8yQoAo7ocq0UGWi-)
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -378,7 +378,7 @@ params = {
 results, model_weights = trainer.train(params)
 ```
 
-For more details check [tutorial](https://drive.google.com/file/d/1zW_I4JRRvCOoo5oNB1U3fWCfaJC8gB6s/view?usp=share_link)
+For more details check [tutorial](https://colab.research.google.com/drive/1zW_I4JRRvCOoo5oNB1U3fWCfaJC8gB6s)
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -413,7 +413,7 @@ analyzer.plot_all("final")
 metrics = get_df_metrics()
 ```
 
-For more details check [tutorial](https://drive.google.com/file/d/1s21Mn0ieNo5YJ4qLNDFBPEUTC874UfcK/view?usp=share_link)
+For more details check [tutorial](https://colab.research.google.com/drive/1s21Mn0ieNo5YJ4qLNDFBPEUTC874UfcK)
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -432,7 +432,7 @@ analyzer.plot_all("final")
 metrics = get_df_metrics()
 ```
 
-For more details check [tutorial](https://drive.google.com/file/d/1PA7bFGQRGazfSBhF8yQoAo7ocq0UGWi-/view?usp=share_link)
+For more details check [tutorial](https://colab.research.google.com/drive/1PA7bFGQRGazfSBhF8yQoAo7ocq0UGWi-)
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -455,6 +455,6 @@ analyzer.plot_all("final")
 metrics = get_df_metrics()
 ```
 
-For more details check [tutorial](https://drive.google.com/file/d/1zW_I4JRRvCOoo5oNB1U3fWCfaJC8gB6s/view?usp=share_link)
+For more details check [tutorial](https://colab.research.google.com/drive/1zW_I4JRRvCOoo5oNB1U3fWCfaJC8gB6s)
 
 <p align="right">(<a href="#top">back to top</a>)</p>
