@@ -6,8 +6,7 @@ from torch.utils.data import Dataset
 
 class CroatoanDataset(Dataset):
     """
-    Dataset that will be used for training. Usually uses data
-    from `BinaryPreproc` or `RegressionPreproc` class.
+    Dataset that will be used for training.
 
     Attributes:
         `ids` (list): List with unique ids.
