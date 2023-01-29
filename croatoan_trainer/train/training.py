@@ -236,6 +236,7 @@ def run_cv(
     all_results = {}
     all_ids = []
     all_true = []
+    all_pred = None
 
     for i, ids in enumerate(cv_split):
         logging.info(f"Fold {i} is being trained...")

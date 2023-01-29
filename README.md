@@ -1,7 +1,5 @@
 ![example workflow](https://github.com/receptor-ai/dsf-global/actions/workflows/test.yml/badge.svg)
 
-</br>
-
 # Table of Contents
 <ul>
   <li><a href="#installation">Installation</a></li>
