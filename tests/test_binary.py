@@ -69,6 +69,8 @@ def test_binary():
     analyzer.get_df_metrics()
     analyzer.get_metric_result("final", jaccard_score, True, zero_division=0)
 
+    analyzer.print_classification_report("test")
+
     analyzer.plot_all("test")
     analyzer.plot_confusion_matrix_per_epoch(
         stage="test",

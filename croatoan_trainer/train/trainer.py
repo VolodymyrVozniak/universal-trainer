@@ -6,7 +6,7 @@ from torch.utils.data import DataLoader
 
 from .dataset import CroatoanDataset
 from .training import run_cv, run_test
-from ..preprocess.preprocessor import _Preproc
+from ..preprocess.abstract import _Preproc
 
 
 class Trainer():

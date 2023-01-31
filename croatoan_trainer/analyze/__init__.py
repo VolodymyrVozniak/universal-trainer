@@ -1,1 +1,3 @@
-from .analyzer import BinaryAnalyzer, RegressionAnalyzer, MulticlassAnalyzer
+from .binary import BinaryAnalyzer
+from .regression import RegressionAnalyzer
+from .multiclass import MulticlassAnalyzer

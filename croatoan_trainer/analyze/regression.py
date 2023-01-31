@@ -1,0 +1,283 @@
+from typing import List, Dict, Union, Callable, Any
+
+import numpy as np
+import plotly.express as px
+import plotly.graph_objects as go
+import plotly.figure_factory as ff
+from plotly.subplots import make_subplots
+
+from .abstract import _TrainAnalyzer
+
+
+class RegressionAnalyzer(_TrainAnalyzer):
+    """
+    A class used to analyze info about trained regression model.
+
+    Attributes:
+        `results` (dict): Dictionary with results per each stage
+        after training. Keys are `cv`, `test` and `final`.
+        Main keys for each stage are `losses`, `metrics`, `best_result`.
+        `time`, `ids`, `true` and `pred`
+        `postprocess_fn` (callable): Function that takes list with
+        model outputs from `pred` key for each stage in `results`
+        and somehow processes them.
+
+    Methods:
+        `get_stages()`: Gets list of stages.
+        `get_metrics()`: Gets list of metrics used in training.
+        `get_folds()`: Gets number of folds used in training.
+        `get_epochs(stage)`: Gets number of epochs for stage.
+        `get_time()`: Gets train time in seconds for all stages.
+        `get_df_pred(stage)`: Gets dataframe with predictions.
+        `get_df_metrics(stages)`: Gets dataframe with metrics.
+        `get_metric_result(stage, metric, **kwargs)`: Gets result for metric.
+        `plot_losses(stage, fold)`: Plots losses.
+        `plot_metrics(stage, metrics, fold)`: Plots metrics.
+        `plot_pred_sample(stage, id)`: Plots predictions over epochs
+        for one unique id.
+        `plot_pred(stage)`: Plots True-Predict dependency.
+        `plot_hist(stage)`: Plots histogram for true and final predicted
+        values.
+        `plot_kde(stage)`: Plots kernel destiny estimation for true and
+        final predicted values.
+        `plot_hist_per_epoch(stage, epochs)`: Plots histograms for true and
+        predicted values per epochs.
+        `plot_kde_per_epoch(stage, epochs)`: Plots kernel destiny estimation
+        for true, final predicted values and predicted values per epochs.
+        `plot_all(stage)`: Plots main charts (losses, all metrics,
+        true-predict dependency, histogram for true and final predicted values,
+        kernel density estimation for true and final predicted values).
+        `set_plotly_args(**kwargs)`: Sets args for plotly charts.
+    """
+
+    def __init__(
+        self,
+        results: Dict[str, Dict[str, Any]],
+        postprocess_fn: Union[None, Callable[[List], List]] = None
+    ):
+        """
+        Args:
+            `results` (dict): Dictionary with results per each stage
+            after training. Keys are `cv`, `test` and `final` and
+            values are dicts with results for each stage (which contain
+            lossses for each epoch inside `losses`, dict with metrics
+            for each epoch inside `metrics`, best epoch and best metrics
+            inside `best_result`, training time inside `time`,
+            list with unique ids inside `ids`, list with true values
+            inside `true` and list with model outputs for each
+            epoch inside `pred`).
+            `postprocess_fn` (callable): Function that takes list with
+            model outputs from `pred` key for each stage in `results`
+            and somehow processes them (default is `None`).
+        """
+        super().__init__(results, postprocess_fn)
+
+    def get_metric_result(
+        self,
+        stage: str,
+        metric: Callable[[List[float], List[float]], float],
+        **kwargs
+    ) -> float:
+        """
+        Gets result for specific metric.
+
+        Args:
+            `stage` (str): One of stage from `get_stages()` method.
+            `metric` (callable): Function that takes `y_true` and `y_pred`
+            in this order and gives float as output.
+            `**kwargs`: Extra arguments for `metric` function.
+
+        Returns:
+            float: Metric's result.
+        """
+        super().get_metric_result(stage, metric, False, **kwargs)
+
+    def plot_pred(self, stage: str):
+        """
+        Plots True-Predict dependency.
+
+        Args:
+            `stage` (str): One of stage from `get_stages()` method.
+        """
+        df = self.get_df_pred(stage)
+
+        fig = px.scatter(df, x='True', y='Pred', hover_data=["ID"])
+
+        min_ = df['True'].min()
+        max_ = df['True'].max()
+        fig.add_trace(go.Scatter(
+            x=np.linspace(min_, max_, num=100),
+            y=np.linspace(min_, max_, num=100),
+            mode='lines',
+            name='True = Pred',
+            line_color='Yellow'
+        ))
+        # fig.add_shape(type='line', x0=min_, y0=min_, x1=max_, y1=max_,
+        #               line=dict(color='Yellow', width=3))
+
+        fig.update_traces(line_width=3, marker_size=7)
+        fig.update_layout(
+            **self.plotly_args,
+            title_text=f"True-Predict Dependency (stage: {stage})",
+            xaxis_title="True Values",
+            yaxis_title="Predicted Values"
+        )
+        fig.show()
+
+    def plot_hist(self, stage: str):
+        """
+        Plots histograms for true and final predicted values.
+
+        Args:
+            `stage` (str): One of stage from `get_stages()` method.
+        """
+        df = self.get_df_pred(stage)
+
+        fig = go.Figure()
+        for el in ["True", "Pred"]:
+            fig.add_trace(go.Histogram(x=df[el], name=el))
+
+        fig.update_traces(opacity=0.75)
+        fig.update_layout(
+            **self.plotly_args,
+            title_text=f"Target Histograms (stage: {stage})",
+            xaxis_title="Target",
+            yaxis_title="Count"
+        )
+        fig.show()
+
+    def plot_kde(self, stage: str):
+        """
+        Plots kernel density estimation for true and predicted values.
+
+        Args:
+            `stage` (str): One of stage from `get_stages()` method.
+        """
+        df = self.get_df_pred(stage)
+
+        fig = ff.create_distplot(
+            hist_data=[df["True"], df["Pred"]],
+            group_labels=["True", "Pred"],
+            show_rug=False,
+            show_hist=False
+        )
+
+        fig.update_traces(line_width=3, marker_size=7)
+        fig.update_layout(
+            **self.plotly_args,
+            title_text=f"Kernel Density Estimation (stage: {stage})",
+            xaxis_title="Target",
+            yaxis_title="Density"
+        )
+        fig.show()
+
+    def plot_hist_per_epoch(self, stage: str, epochs: List[int]):
+        """
+        Plots histograms for true and predicted values per epoch.
+
+        Args:
+            `stage` (str): One of stage from `get_stages()` method.
+            `epochs` (list): List with epochs for plotting.
+            (epochs counter started from 0). Examples are `[0, 24, 49, 74, 99]`
+            or `range(9, self.get_epochs("test"), 10)` (plot every 10th epoch).
+        """
+        df = self.get_df_pred(stage)
+
+        n_plots = len(epochs)
+        cols = 4 if n_plots > 4 else n_plots
+        rows = n_plots // cols if n_plots % cols == 0 else n_plots // cols + 1
+
+        subplot_titles = []
+        for epoch in epochs:
+            subplot_titles.append(f"Epoch {epoch}")
+
+        fig = make_subplots(
+            rows=rows,
+            cols=cols,
+            x_title="Target",
+            y_title="Count",
+            subplot_titles=subplot_titles
+        )
+
+        for i, epoch in enumerate(epochs):
+            fig.add_trace(
+                go.Histogram(x=df["True"], name=f"Epoch {epoch} True"),
+                row=i // cols + 1,
+                col=i % cols + 1
+            )
+            try:
+                pred = self.results[stage]['pred'][epoch]
+                if self.postprocess_fn:
+                    pred = self.postprocess_fn(pred)
+            except IndexError:
+                raise ValueError(f"There is no `{epoch}` epoch in "
+                                 f"`{stage}` stage!")
+            fig.add_trace(
+                go.Histogram(x=pred, name=f"Epoch {epoch} Pred"),
+                row=i // cols + 1,
+                col=i % cols + 1
+            )
+
+        fig.update_traces(opacity=0.75)
+        fig.update_layout(
+            **self.plotly_args,
+            title_text=f"Target Histograms Per Epoch (stage: {stage})",
+        )
+        fig.show()
+
+    def plot_kde_per_epoch(self, stage: str, epochs: List[int]):
+        """
+        Plots kernel density estimation for true, final predicted
+        values and predicted values per epoch.
+
+        Args:
+            `stage` (str): One of stage from `get_stages()` method.
+            `epochs` (list): List with epochs for plotting
+            (epochs counter started from 0). Examples are `[0, 24, 49, 74, 99]`
+            or `range(9, self.get_epochs("test"), 10)` (plot every 10th epoch).
+        """
+        df = self.get_df_pred(stage)
+        hist_data = [df["True"], df["Pred"]]
+        group_labels = ["True", "Pred"]
+
+        for epoch in epochs:
+            try:
+                pred = self.results[stage]['pred'][epoch]
+                if self.postprocess_fn:
+                    pred = self.postprocess_fn(pred)
+            except IndexError:
+                raise ValueError(f"There is no `{epoch}` epoch in "
+                                 f"`{stage}` stage!")
+            hist_data.append(pred)
+            group_labels.append(f"Epoch {epoch}")
+
+        fig = ff.create_distplot(
+            hist_data=hist_data,
+            group_labels=group_labels,
+            show_rug=False,
+            show_hist=False
+        )
+
+        fig.update_traces(line_width=3, marker_size=7)
+        fig.update_layout(
+            **self.plotly_args,
+            title_text=f"Kernel Density Estimation Per Epoch (stage: {stage})",
+            xaxis_title="Target",
+            yaxis_title="Density"
+        )
+        fig.show()
+
+    def plot_all(self, stage):
+        """
+        Plots main charts (losses, all metrics, true-predict dependency,
+        histogram for true and final predicted values,
+        kernel density estimation for true and final predicted values).
+
+        Args:
+            `stage` (str): One of stage from `get_stages()` method.
+        """
+        self.plot_losses(stage)
+        self.plot_metrics(stage, self.get_metrics())
+        self.plot_pred(stage)
+        self.plot_hist(stage)
+        self.plot_kde(stage)
