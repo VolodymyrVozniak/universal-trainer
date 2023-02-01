@@ -72,9 +72,6 @@ def val_epoch(
             except RuntimeError:
                 y = y.long()
                 loss = criterion(y_pred_loader, y)
-            except ValueError:
-                y_pred_loader = y_pred_loader.reshape(-1)
-                loss = criterion(y_pred_loader, y)
 
         losses.append(loss.item() * y.size(0))
         y_true.append(y)
@@ -251,7 +248,7 @@ def run_cv(
             batch_size=params["batch_size"],
             shuffle=True
         )
-        loader_val = DataLoader(
+        loader_val = loader_class(
             dataset=dataset_val,
             batch_size=params["batch_size"],
             shuffle=False
