@@ -171,13 +171,14 @@ def train_val(
 
 
 def _get_mean_results_cv(results_per_fold, epochs, main_metric, direction):
-    mean_losses = defaultdict(lambda: np.zeros(epochs))
-    mean_metrics = {"train": defaultdict(lambda: np.zeros(epochs)),
-                    "val": defaultdict(lambda: np.zeros(epochs))}
     n_folds = len(results_per_fold)
-    stages = list(results_per_fold[0]["metrics"].keys())
+    stages = ["train", "val"]
     metrics = list(results_per_fold[0]["metrics"]["train"][0].keys())
-    all_time = 0
+
+    mean_losses = defaultdict(lambda: np.zeros(epochs))
+    mean_metrics = {}
+    for stage in stages:
+        mean_metrics[stage] = defaultdict(lambda: np.zeros(epochs))
 
     for fold in range(n_folds):
         rpf = results_per_fold[fold]
@@ -188,11 +189,10 @@ def _get_mean_results_cv(results_per_fold, epochs, main_metric, direction):
                               range(epochs))
                 mean_metrics[stage][metric] += \
                     (np.array(list(mapping)) / n_folds)
-        all_time += rpf['time']
 
     final_losses = {}
     final_metrics = defaultdict(list)
-    for stage in ["train", "val"]:
+    for stage in stages:
         final_losses[stage] = list(mean_losses[stage] / n_folds)
         for epoch in range(epochs):
             mapping = map(lambda x: mean_metrics[stage][x][epoch], metrics)
@@ -208,7 +208,7 @@ def _get_mean_results_cv(results_per_fold, epochs, main_metric, direction):
         "metrics": final_metrics["val"][best_epoch]
     }
 
-    return final_losses, final_metrics, best_result, all_time
+    return final_losses, final_metrics, best_result
 
 
 def run_cv(
@@ -230,7 +230,7 @@ def run_cv(
     logging.info(f"Training with cv...")
 
     results_per_fold = []
-    all_results = {}
+    all_time = 0
     all_ids = []
     all_true = []
     all_pred = None
@@ -257,7 +257,7 @@ def run_cv(
         model = model_class(**params["model"])
         optimizer = optimizer_class(model.parameters(), **params["optimizer"])
 
-        losses, metrics, best_result, model_weights, time, ids, true, pred = \
+        losses, metrics, best_result, _, time, ids, true, pred = \
             train_val(
                 model=model,
                 loaders=(loader_train, loader_val),
@@ -274,14 +274,16 @@ def run_cv(
         for var in ["losses", "metrics", "best_result",
                     "time", "ids", "true", "pred"]:
             results[var] = locals()[var]
-
-        all_ids += ids
-        all_true += true
-        all_pred = pred if i == 0 else np.concatenate((all_pred, pred), axis=1)
         results_per_fold.append(results)
 
+        all_time += time
+        all_ids += ids
+        all_true += true
+        all_pred = np.array(pred) if i == 0 \
+            else np.concatenate((all_pred, pred), axis=1)
+
     if len(cv_split) > 1:
-        losses, metrics, best_result, time = \
+        losses, metrics, best_result = \
             _get_mean_results_cv(
                 results_per_fold=results_per_fold,
                 epochs=params["epochs"],
@@ -289,15 +291,19 @@ def run_cv(
                 direction=direction
             )
 
-    for i in ["losses", "metrics", "best_result", "time"]:
-        all_results[i] = locals()[i]
+    all_results = {
+        "losses": losses,
+        "metrics": metrics,
+        "best_result": best_result,
+        "time": all_time,
+        "ids": all_ids,
+        "true": all_true,
+        "pred": all_pred.tolist(),
+        "results_per_fold": results_per_fold
+    }
 
-    all_pred = all_pred.tolist()
-    all_results["ids"] = all_ids
-    all_results["true"] = all_true
-    all_results["pred"] = all_pred
-
-    all_results["results_per_fold"] = results_per_fold
+    if len(cv_split) == 1:
+        all_results.pop("results_per_fold")
 
     return all_results
 

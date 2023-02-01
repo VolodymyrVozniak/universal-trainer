@@ -25,7 +25,7 @@ def test_multiclass():
     preproc.plot_targets(prepared=False)
     preproc.prepare_targets()
     preproc.plot_targets(prepared=True)
-    preproc.random_split()
+    preproc.random_split(n_folds=1, val_size=0.2)
     preproc.plot_split_targets(prepared=False)
     preproc.plot_split_targets(prepared=True)
     preproc.get_split_info()

@@ -33,6 +33,10 @@ class _TrainAnalyzer(_Base):
         self._check_metric(metric)
 
         if stage == "cv":
+            if self.get_folds() == 1 and fold is not None:
+                print("[WARNING] Can't use specific fold when there is only "
+                      f"1 fold! Just `{stage}` scores will be used!")
+                fold = None
             stages = ["train", "val"]
             results = self.results[stage] if fold is None \
                 else self.results[stage]['results_per_fold'][fold]
@@ -100,7 +104,11 @@ class _TrainAnalyzer(_Base):
         Returns:
             int: Number of folds.
         """
-        return len(self.results["cv"]["results_per_fold"])
+        cv_results = self.results["cv"]
+        try:
+            return len(cv_results["results_per_fold"])
+        except KeyError:
+            return 1
 
     def get_epochs(self, stage) -> int:
         """
