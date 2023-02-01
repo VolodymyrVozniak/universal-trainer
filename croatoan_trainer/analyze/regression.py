@@ -21,12 +21,14 @@ class RegressionAnalyzer(_TrainAnalyzer):
         `postprocess_fn` (callable): Function that takes list with
         model outputs from `pred` key for each stage in `results`
         and somehow processes them.
+        `plotly_args` (dict): Dict with args for plotly charts.
 
     Methods:
         `get_stages()`: Gets list of stages.
         `get_metrics()`: Gets list of metrics used in training.
         `get_folds()`: Gets number of folds used in training.
         `get_epochs(stage)`: Gets number of epochs for stage.
+        `get_best_epoch(stage)`: Gets number of best epoch for stage.
         `get_time()`: Gets train time in seconds for all stages.
         `get_df_pred(stage)`: Gets dataframe with predictions.
         `get_df_metrics(stages)`: Gets dataframe with metrics.
@@ -43,7 +45,7 @@ class RegressionAnalyzer(_TrainAnalyzer):
         `plot_hist_per_epoch(stage, epochs)`: Plots histograms for true and
         predicted values per epochs.
         `plot_kde_per_epoch(stage, epochs)`: Plots kernel destiny estimation
-        for true, final predicted values and predicted values per epochs.
+        for true and predicted values per epochs.
         `plot_all(stage)`: Plots main charts (losses, all metrics,
         true-predict dependency, histogram for true and final predicted values,
         kernel density estimation for true and final predicted values).
@@ -90,7 +92,7 @@ class RegressionAnalyzer(_TrainAnalyzer):
         Returns:
             float: Metric's result.
         """
-        super().get_metric_result(stage, metric, False, **kwargs)
+        return super().get_metric_result(stage, metric, False, **kwargs)
 
     def plot_pred(self, stage: str):
         """
@@ -124,56 +126,9 @@ class RegressionAnalyzer(_TrainAnalyzer):
         )
         fig.show()
 
-    def plot_hist(self, stage: str):
-        """
-        Plots histograms for true and final predicted values.
-
-        Args:
-            `stage` (str): One of stage from `get_stages()` method.
-        """
-        df = self.get_df_pred(stage)
-
-        fig = go.Figure()
-        for el in ["True", "Pred"]:
-            fig.add_trace(go.Histogram(x=df[el], name=el))
-
-        fig.update_traces(opacity=0.75)
-        fig.update_layout(
-            **self.plotly_args,
-            title_text=f"Target Histograms (stage: {stage})",
-            xaxis_title="Target",
-            yaxis_title="Count"
-        )
-        fig.show()
-
-    def plot_kde(self, stage: str):
-        """
-        Plots kernel density estimation for true and predicted values.
-
-        Args:
-            `stage` (str): One of stage from `get_stages()` method.
-        """
-        df = self.get_df_pred(stage)
-
-        fig = ff.create_distplot(
-            hist_data=[df["True"], df["Pred"]],
-            group_labels=["True", "Pred"],
-            show_rug=False,
-            show_hist=False
-        )
-
-        fig.update_traces(line_width=3, marker_size=7)
-        fig.update_layout(
-            **self.plotly_args,
-            title_text=f"Kernel Density Estimation (stage: {stage})",
-            xaxis_title="Target",
-            yaxis_title="Density"
-        )
-        fig.show()
-
     def plot_hist_per_epoch(self, stage: str, epochs: List[int]):
         """
-        Plots histograms for true and predicted values per epoch.
+        Plots histograms for true and predicted values per epochs.
 
         Args:
             `stage` (str): One of stage from `get_stages()` method.
@@ -183,13 +138,18 @@ class RegressionAnalyzer(_TrainAnalyzer):
         """
         df = self.get_df_pred(stage)
 
+        best_epoch = self.get_best_epoch(stage)
+
         n_plots = len(epochs)
         cols = 4 if n_plots > 4 else n_plots
         rows = n_plots // cols if n_plots % cols == 0 else n_plots // cols + 1
 
         subplot_titles = []
         for epoch in epochs:
-            subplot_titles.append(f"Epoch {epoch}")
+            if epoch == best_epoch:
+                subplot_titles.append(f"Best Epoch {epoch}")
+            else:
+                subplot_titles.append(f"Epoch {epoch}")
 
         fig = make_subplots(
             rows=rows,
@@ -221,14 +181,14 @@ class RegressionAnalyzer(_TrainAnalyzer):
         fig.update_traces(opacity=0.75)
         fig.update_layout(
             **self.plotly_args,
-            title_text=f"Target Histograms Per Epoch (stage: {stage})",
+            title_text=f"Target Histograms (stage: {stage})",
         )
         fig.show()
 
     def plot_kde_per_epoch(self, stage: str, epochs: List[int]):
         """
-        Plots kernel density estimation for true, final predicted
-        values and predicted values per epoch.
+        Plots kernel density estimation for true and predicted values
+        per epochs.
 
         Args:
             `stage` (str): One of stage from `get_stages()` method.
@@ -237,8 +197,10 @@ class RegressionAnalyzer(_TrainAnalyzer):
             or `range(9, self.get_epochs("test"), 10)` (plot every 10th epoch).
         """
         df = self.get_df_pred(stage)
-        hist_data = [df["True"], df["Pred"]]
-        group_labels = ["True", "Pred"]
+        hist_data = [df["True"]]
+        group_labels = ["True"]
+
+        best_epoch = self.get_best_epoch(stage)
 
         for epoch in epochs:
             try:
@@ -249,7 +211,10 @@ class RegressionAnalyzer(_TrainAnalyzer):
                 raise ValueError(f"There is no `{epoch}` epoch in "
                                  f"`{stage}` stage!")
             hist_data.append(pred)
-            group_labels.append(f"Epoch {epoch}")
+            if epoch == best_epoch:
+                group_labels.append(f"Best Epoch {epoch}")
+            else:
+                group_labels.append(f"Epoch {epoch}")
 
         fig = ff.create_distplot(
             hist_data=hist_data,
@@ -261,11 +226,31 @@ class RegressionAnalyzer(_TrainAnalyzer):
         fig.update_traces(line_width=3, marker_size=7)
         fig.update_layout(
             **self.plotly_args,
-            title_text=f"Kernel Density Estimation Per Epoch (stage: {stage})",
+            title_text=f"Kernel Density Estimation (stage: {stage})",
             xaxis_title="Target",
             yaxis_title="Density"
         )
         fig.show()
+
+    def plot_hist(self, stage: str):
+        """
+        Plots histograms for true and final predicted values.
+
+        Args:
+            `stage` (str): One of stage from `get_stages()` method.
+        """
+        best_epoch = self.get_best_epoch(stage)
+        self.plot_hist_per_epoch(stage, [best_epoch])
+
+    def plot_kde(self, stage: str):
+        """
+        Plots kernel density estimation for true and predicted values.
+
+        Args:
+            `stage` (str): One of stage from `get_stages()` method.
+        """
+        best_epoch = self.get_best_epoch(stage)
+        self.plot_kde_per_epoch(stage, [best_epoch])
 
     def plot_all(self, stage):
         """

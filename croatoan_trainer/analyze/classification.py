@@ -33,35 +33,6 @@ class _ClassificationAnalyzer(_TrainAnalyzer):
             zero_division=0
         ))
 
-    def plot_confusion_matrix(self, stage: str):
-        """
-        Plots confusion matrix.
-
-        Args:
-            `stage` (str): One of stage from `get_stages()` method.
-        """
-        df = self.get_df_pred(stage)
-
-        cm = confusion_matrix(df["True"], df["Pred"].round())
-        x_axes = [f"Pred {i}" for i in range(len(cm))]
-        y_axes = [f"True {i}" for i in range(len(cm))]
-
-        fig = ff.create_annotated_heatmap(
-            cm,
-            x=x_axes,
-            y=y_axes,
-            colorscale='Viridis',
-            annotation_text=None
-        )
-
-        fig.update_layout(
-            **self.plotly_args,
-            title_text=f'Confusion Matrix (stage: {stage})'
-        )
-        fig.update_yaxes(categoryorder='array', categoryarray=y_axes[::-1])
-        # fig['data'][0]['showscale'] = True
-        fig.show()
-
     def plot_confusion_matrix_per_epoch(self, stage: str, epochs: List[int]):
         """
         Plots confusion matrix per epochs.
@@ -74,6 +45,8 @@ class _ClassificationAnalyzer(_TrainAnalyzer):
         """
         df = self.get_df_pred(stage)
 
+        best_epoch = self.get_best_epoch(stage)
+
         n_plots = len(epochs)
         cols = 4 if n_plots > 4 else n_plots
         rows = n_plots // cols if n_plots % cols == 0 else n_plots // cols + 1
@@ -81,7 +54,10 @@ class _ClassificationAnalyzer(_TrainAnalyzer):
 
         subplot_titles = []
         for epoch in epochs:
-            subplot_titles.append(f"Epoch {epoch}")
+            if epoch == best_epoch:
+                subplot_titles.append(f"Best Epoch {epoch}")
+            else:
+                subplot_titles.append(f"Epoch {epoch}")
 
         fig = make_subplots(
             rows=rows,
@@ -127,7 +103,18 @@ class _ClassificationAnalyzer(_TrainAnalyzer):
             fig.add_annotation(annotation)
         fig.update_layout(
             **self.plotly_args,
-            title_text=f"Confusion Matrix Per Epoch (stage: {stage})"
+            title_text=f"Confusion Matrix (stage: {stage})"
         )
         fig.update_yaxes(categoryorder='array', categoryarray=y_axes[::-1])
+        # fig['data'][0]['showscale'] = True
         fig.show()
+
+    def plot_confusion_matrix(self, stage: str):
+        """
+        Plots confusion matrix.
+
+        Args:
+            `stage` (str): One of stage from `get_stages()` method.
+        """
+        best_epoch = self.get_best_epoch(stage)
+        self.plot_confusion_matrix_per_epoch(stage, [best_epoch])

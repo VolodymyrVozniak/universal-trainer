@@ -13,7 +13,7 @@ from croatoan_trainer.train.metrics import get_metrics_multiclass
 from croatoan_trainer.analyze import MulticlassAnalyzer
 
 
-def test_binary():
+def test_multiclass():
     data = load_iris()
     x = data['data']
     y = data['target']
@@ -77,6 +77,6 @@ def test_binary():
 
     analyzer.plot_all("test")
     analyzer.plot_confusion_matrix_per_epoch(
-        stage="test",
-        epochs=range(9, analyzer.get_epochs("test"), 10)
+        stage="cv",
+        epochs=range(9, analyzer.get_epochs("cv"), 10)
     )

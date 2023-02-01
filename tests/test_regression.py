@@ -13,7 +13,7 @@ from croatoan_trainer.train.metrics import get_metrics_regression
 from croatoan_trainer.analyze import RegressionAnalyzer
 
 
-def test_binary():
+def test_regression():
     data = load_diabetes()
     x = data['data']
     y = data['target']
@@ -67,14 +67,15 @@ def test_binary():
     analyzer.get_df_pred("cv")
 
     analyzer.get_df_metrics()
-    analyzer.get_metric_result("final", median_absolute_error)
+    metric = analyzer.get_metric_result("final", median_absolute_error)
+    assert metric is not None
 
     analyzer.plot_all("test")
     analyzer.plot_hist_per_epoch(
-        stage="test",
-        epochs=range(9, analyzer.get_epochs("test"), 10)
+        stage="cv",
+        epochs=range(9, analyzer.get_epochs("cv"), 10)
     )
     analyzer.plot_kde_per_epoch(
-        stage="test",
-        epochs=range(9, analyzer.get_epochs("test"), 10)
+        stage="cv",
+        epochs=range(9, analyzer.get_epochs("cv"), 10)
     )

@@ -15,12 +15,14 @@ class MulticlassAnalyzer(_ClassificationAnalyzer):
         `postprocess_fn` (callable): Function that takes list with
         model outputs from `pred` key for each stage in `results`
         and somehow processes them.
+        `plotly_args` (dict): Dict with args for plotly charts.
 
     Methods:
         `get_stages()`: Gets list of stages.
         `get_metrics()`: Gets list of metrics used in training.
         `get_folds()`: Gets number of folds used in training.
         `get_epochs(stage)`: Gets number of epochs for stage.
+        `get_best_epoch(stage)`: Gets number of best epoch for stage.
         `get_time()`: Gets train time in seconds for all stages.
         `get_df_pred(stage)`: Gets dataframe with predictions.
         `get_df_metrics(stages)`: Gets dataframe with metrics.
@@ -84,7 +86,7 @@ class MulticlassAnalyzer(_ClassificationAnalyzer):
         Returns:
             float: Metric's result.
         """
-        super().get_metric_result(stage, metric, False, **kwargs)
+        return super().get_metric_result(stage, metric, False, **kwargs)
 
     def plot_all(self, stage):
         """

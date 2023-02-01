@@ -115,6 +115,19 @@ class _TrainAnalyzer(_Base):
         self._check_stage(stage)
         return len(self.results[stage]["losses"]["train"])
 
+    def get_best_epoch(self, stage) -> int:
+        """
+        Gets number of best epoch for stage.
+
+        Args:
+            `stage` (str): One of stage from `get_stages()` method.
+
+        Returns:
+            int: Number of best epoch for stage.
+        """
+        self._check_stage(stage)
+        return self.results[stage]["best_result"]["epoch"]
+
     def get_time(self) -> Dict[str, float]:
         """
         Gets train time in seconds for all stages.
@@ -139,7 +152,7 @@ class _TrainAnalyzer(_Base):
 
         ids = self.results[stage]["ids"]
         true = self.results[stage]["true"]
-        best_epoch = self.results[stage]["best_result"]["epoch"]
+        best_epoch = self.get_best_epoch(stage)
         pred = self.results[stage]["pred"][best_epoch]
 
         if self.postprocess_fn:

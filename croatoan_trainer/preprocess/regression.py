@@ -16,7 +16,7 @@ class RegressionPreproc(_Preproc):
         input and prepared targets.
         `targets` (dict): Prepared targets.
         `split` (dict): Prepared splits.
-        `plotly_args` (dcit): Dict with args for plotly charts.
+        `plotly_args` (dict): Dict with args for plotly charts.
 
     Methods:
         `prepare_targets(log, quantiles)`: Prepares targets.

@@ -73,6 +73,10 @@ def test_binary():
 
     analyzer.plot_all("test")
     analyzer.plot_confusion_matrix_per_epoch(
-        stage="test",
-        epochs=range(9, analyzer.get_epochs("test"), 10)
+        stage="cv",
+        epochs=range(9, analyzer.get_epochs("cv"), 10)
+    )
+    analyzer.plot_pred_hist_per_epoch(
+        stage="cv",
+        epochs=range(9, analyzer.get_epochs("cv"), 10)
     )

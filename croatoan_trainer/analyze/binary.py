@@ -3,6 +3,7 @@ from typing import List, Dict, Union, Callable, Any
 import pandas as pd
 import numpy as np
 import plotly.graph_objects as go
+from plotly.subplots import make_subplots
 from sklearn.metrics import roc_curve, roc_auc_score, auc, \
     precision_recall_curve
 
@@ -21,12 +22,14 @@ class BinaryAnalyzer(_ClassificationAnalyzer):
         `postprocess_fn` (callable): Function that takes list with
         model outputs from `pred` key for each stage in `results`
         and somehow processes them.
+        `plotly_args` (dict): Dict with args for plotly charts.
 
     Methods:
         `get_stages()`: Gets list of stages.
         `get_metrics()`: Gets list of metrics used in training.
         `get_folds()`: Gets number of folds used in training.
         `get_epochs(stage)`: Gets number of epochs for stage.
+        `get_best_epoch(stage)`: Gets number of best epoch for stage.
         `get_time()`: Gets train time in seconds for all stages.
         `get_df_pred(stage)`: Gets dataframe with predictions.
         `get_df_metrics(stages)`: Gets dataframe with metrics.
@@ -41,11 +44,15 @@ class BinaryAnalyzer(_ClassificationAnalyzer):
         `plot_confusion_matrix(stage)`: Plots confusion matrix.
         `plot_confusion_matrix_per_epoch(stage, epochs)`: Plots confusion
         matrix per epochs.
+        `plot_pred_hist(stage)`: Plots prediction histogram for best epoch.
+        `plot_pred_hist_per_epoch(stage)`: Plots prediction histograms
+        per epochs.
         `plot_roc_auc(stage)`: Plots ROC-AUC chart.
         `plot_precision_recall_auc(stage)`: Plots Precision-Recall AUC chart.
         `plot_enrichment(stage)`: Plots enrichment chart.
         `plot_all(stage)`: Plots main charts (losses, all metrics,
-        confusion matrix, ROC-AUC, Precision-Recall AUC, enrichment).
+        confusion matrix, prediction histogram for best epoch,
+        ROC-AUC curve, Precision-Recall AUC curve, enrichment).
         `set_plotly_args(**kwargs)`: Sets args for plotly charts.
     """
 
@@ -76,6 +83,67 @@ class BinaryAnalyzer(_ClassificationAnalyzer):
             outputs (default is `None`).
         """
         super().__init__(results, postprocess_fn)
+
+    def plot_pred_hist_per_epoch(self, stage: str, epochs: List[int]):
+        """
+        Plots prediction histograms per epochs.
+
+        Args:
+            `stage` (str): One of stage from `get_stages()` method.
+            `epochs` (list): List with epochs for plotting.
+            (epochs counter started from 0). Examples are `[0, 24, 49, 74, 99]`
+            or `range(9, self.get_epochs("test"), 10)` (plot every 10th epoch).
+        """
+        best_epoch = self.get_best_epoch(stage)
+
+        n_plots = len(epochs)
+        cols = 4 if n_plots > 4 else n_plots
+        rows = n_plots // cols if n_plots % cols == 0 else n_plots // cols + 1
+
+        subplot_titles = []
+        for epoch in epochs:
+            if epoch == best_epoch:
+                subplot_titles.append(f"Best Epoch {epoch}")
+            else:
+                subplot_titles.append(f"Epoch {epoch}")
+
+        fig = make_subplots(
+            rows=rows,
+            cols=cols,
+            x_title="Prediction",
+            y_title="Count",
+            subplot_titles=subplot_titles
+        )
+
+        for i, epoch in enumerate(epochs):
+            try:
+                pred = self.results[stage]['pred'][epoch]
+                if self.postprocess_fn:
+                    pred = self.postprocess_fn(pred)
+            except IndexError:
+                raise ValueError(f"There is no `{epoch}` epoch in "
+                                 f"`{stage}` stage!")
+            fig.add_trace(
+                go.Histogram(x=pred, name=f"Epoch {epoch} Pred"),
+                row=i // cols + 1,
+                col=i % cols + 1
+            )
+
+        fig.update_layout(
+            **self.plotly_args,
+            title_text=f"Prediction Histograms (stage: {stage})",
+        )
+        fig.show()
+
+    def plot_pred_hist(self, stage: str):
+        """
+        Plots prediction histogram for best epoch.
+
+        Args:
+            `stage` (str): One of stage from `get_stages()` method.
+        """
+        best_epoch = self.get_best_epoch(stage)
+        self.plot_pred_hist_per_epoch(stage, [best_epoch])
 
     def plot_roc_auc(self, stage: str):
         """
@@ -196,7 +264,8 @@ class BinaryAnalyzer(_ClassificationAnalyzer):
     def plot_all(self, stage):
         """
         Plots main charts (losses, all metrics, confusion matrix,
-        ROC-AUC, Precision-Recall AUC, enrichment).
+        prediction histogram for best epoch, ROC-AUC curve,
+        Precision-Recall AUC curve, enrichment).
 
         Args:
             `stage` (str): One of stage from `get_stages()` method.
@@ -204,6 +273,7 @@ class BinaryAnalyzer(_ClassificationAnalyzer):
         self.plot_losses(stage)
         self.plot_metrics(stage, self.get_metrics())
         self.plot_confusion_matrix(stage)
+        self.plot_pred_hist(stage)
         self.plot_roc_auc(stage)
         self.plot_precision_recall_auc(stage)
         self.plot_enrichment(stage)
