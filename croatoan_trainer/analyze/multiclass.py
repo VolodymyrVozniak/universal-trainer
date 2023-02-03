@@ -34,10 +34,10 @@ class MulticlassAnalyzer(_ClassificationAnalyzer):
         `plot_pred_sample(stage, id)`: Plots predictions over epochs
         for one unique id.
         `plot_confusion_matrix(stage)`: Plots confusion matrix.
-        `plot_confusion_matrix_per_epoch(stage, epochs)`: Plots confusion
-        matrix per epochs.
         `plot_all(stage)`: Plots main charts (losses, all metrics,
         confusion matrix).
+        `plot_confusion_matrix_per_epoch(stage, epochs)`: Plots confusion
+        matrix per epochs.
         `set_plotly_args(**kwargs)`: Sets args for plotly charts.
     """
 

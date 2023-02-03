@@ -71,6 +71,11 @@ def test_regression():
     assert metric is not None
 
     analyzer.plot_all("test")
+    analyzer.plot_pred_sample("final", 0)
+    analyzer.plot_pred_per_epoch(
+        stage="cv",
+        epochs=range(9, analyzer.get_epochs("cv"), 10)
+    )
     analyzer.plot_hist_per_epoch(
         stage="cv",
         epochs=range(9, analyzer.get_epochs("cv"), 10)

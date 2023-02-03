@@ -42,17 +42,17 @@ class BinaryAnalyzer(_ClassificationAnalyzer):
         `plot_pred_sample(stage, id)`: Plots predictions over epochs
         for one unique id.
         `plot_confusion_matrix(stage)`: Plots confusion matrix.
-        `plot_confusion_matrix_per_epoch(stage, epochs)`: Plots confusion
-        matrix per epochs.
         `plot_pred_hist(stage)`: Plots prediction histogram for best epoch.
-        `plot_pred_hist_per_epoch(stage)`: Plots prediction histograms
-        per epochs.
         `plot_roc_auc(stage)`: Plots ROC-AUC chart.
         `plot_precision_recall_auc(stage)`: Plots Precision-Recall AUC chart.
         `plot_enrichment(stage)`: Plots enrichment chart.
         `plot_all(stage)`: Plots main charts (losses, all metrics,
         confusion matrix, prediction histogram for best epoch,
         ROC-AUC curve, Precision-Recall AUC curve, enrichment).
+        `plot_confusion_matrix_per_epoch(stage, epochs)`: Plots confusion
+        matrix per epochs.
+        `plot_pred_hist_per_epoch(stage, epochs)`: Plots prediction histograms
+        per epochs.
         `set_plotly_args(**kwargs)`: Sets args for plotly charts.
     """
 

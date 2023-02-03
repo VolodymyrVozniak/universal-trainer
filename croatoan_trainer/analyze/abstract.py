@@ -227,12 +227,14 @@ class _TrainAnalyzer(_Base):
             sample_pred = self.postprocess_fn(sample_pred)
         epochs = len(sample_pred)
 
-        df = pd.DataFrame({'epoch': range(epochs),
-                           'sample_pred': sample_pred})
-        df["stage"] = stage
+        fig = go.Figure()
 
-        fig = px.line(df, x='epoch', y='sample_pred',
-                      color='stage', markers=True)
+        fig.add_trace(go.Scatter(
+            x=list(range(epochs)),
+            y=sample_pred,
+            mode='lines+markers',
+            name='Pred'
+        ))
 
         fig.add_trace(go.Scatter(
             x=list(range(epochs)),

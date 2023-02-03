@@ -72,6 +72,7 @@ def test_binary():
     analyzer.print_classification_report("test")
 
     analyzer.plot_all("test")
+    analyzer.plot_pred_sample("final", 0)
     analyzer.plot_confusion_matrix_per_epoch(
         stage="cv",
         epochs=range(9, analyzer.get_epochs("cv"), 10)

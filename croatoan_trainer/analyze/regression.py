@@ -1,7 +1,6 @@
 from typing import List, Dict, Union, Callable, Any
 
 import numpy as np
-import plotly.express as px
 import plotly.graph_objects as go
 import plotly.figure_factory as ff
 from plotly.subplots import make_subplots
@@ -42,13 +41,15 @@ class RegressionAnalyzer(_TrainAnalyzer):
         values.
         `plot_kde(stage)`: Plots kernel destiny estimation for true and
         final predicted values.
+        `plot_all(stage)`: Plots main charts (losses, all metrics,
+        true-predict dependency, histogram for true and final predicted values,
+        kernel density estimation for true and final predicted values).
+        `plot_pred_per_epoch(stage, epochs)`: Plots True-Predict dependency
+        per epochs.
         `plot_hist_per_epoch(stage, epochs)`: Plots histograms for true and
         predicted values per epochs.
         `plot_kde_per_epoch(stage, epochs)`: Plots kernel destiny estimation
         for true and predicted values per epochs.
-        `plot_all(stage)`: Plots main charts (losses, all metrics,
-        true-predict dependency, histogram for true and final predicted values,
-        kernel density estimation for true and final predicted values).
         `set_plotly_args(**kwargs)`: Sets args for plotly charts.
     """
 
@@ -94,35 +95,78 @@ class RegressionAnalyzer(_TrainAnalyzer):
         """
         return super().get_metric_result(stage, metric, False, **kwargs)
 
-    def plot_pred(self, stage: str):
+    def plot_pred_per_epoch(self, stage: str, epochs: List[int]):
         """
-        Plots True-Predict dependency.
+        Plots True-Predict dependency per epochs.
 
         Args:
             `stage` (str): One of stage from `get_stages()` method.
+            `epochs` (list): List with epochs for plotting
+            (epochs counter started from 0). Examples are `[0, 24, 49, 74, 99]`
+            or `range(9, self.get_epochs("test"), 10)` (plot every 10th epoch).
         """
+
         df = self.get_df_pred(stage)
 
-        fig = px.scatter(df, x='True', y='Pred', hover_data=["ID"])
+        best_epoch = self.get_best_epoch(stage)
+
+        n_plots = len(epochs)
+        cols = 4 if n_plots > 4 else n_plots
+        rows = n_plots // cols if n_plots % cols == 0 else n_plots // cols + 1
+
+        subplot_titles = []
+        for epoch in epochs:
+            if epoch == best_epoch:
+                subplot_titles.append(f"Best Epoch {epoch}")
+            else:
+                subplot_titles.append(f"Epoch {epoch}")
 
         min_ = df['True'].min()
         max_ = df['True'].max()
-        fig.add_trace(go.Scatter(
-            x=np.linspace(min_, max_, num=100),
-            y=np.linspace(min_, max_, num=100),
-            mode='lines',
-            name='True = Pred',
-            line_color='Yellow'
-        ))
-        # fig.add_shape(type='line', x0=min_, y0=min_, x1=max_, y1=max_,
-        #               line=dict(color='Yellow', width=3))
+
+        fig = make_subplots(
+            rows=rows,
+            cols=cols,
+            x_title="True Values",
+            y_title="Predicted Values",
+            subplot_titles=subplot_titles
+        )
+
+        for i, epoch in enumerate(epochs):
+            try:
+                pred = self.results[stage]['pred'][epoch]
+                if self.postprocess_fn:
+                    pred = self.postprocess_fn(pred)
+            except IndexError:
+                raise ValueError(f"There is no `{epoch}` epoch in "
+                                 f"`{stage}` stage!")
+            fig.add_trace(
+                go.Scatter(
+                    x=df["True"],
+                    y=pred,
+                    mode='markers',
+                    text=df["ID"]
+                ),
+                row=i // cols + 1,
+                col=i % cols + 1
+            )
+            fig.add_trace(
+                go.Scatter(
+                    x=np.linspace(min_, max_, num=100),
+                    y=np.linspace(min_, max_, num=100),
+                    mode='lines',
+                    name='True = Pred',
+                    line_color='Yellow'
+                ),
+                row=i // cols + 1,
+                col=i % cols + 1
+            )
 
         fig.update_traces(line_width=3, marker_size=7)
         fig.update_layout(
             **self.plotly_args,
             title_text=f"True-Predict Dependency (stage: {stage})",
-            xaxis_title="True Values",
-            yaxis_title="Predicted Values"
+            showlegend=False
         )
         fig.show()
 
@@ -231,6 +275,16 @@ class RegressionAnalyzer(_TrainAnalyzer):
             yaxis_title="Density"
         )
         fig.show()
+
+    def plot_pred(self, stage: str):
+        """
+        Plots True-Predict dependency.
+
+        Args:
+            `stage` (str): One of stage from `get_stages()` method.
+        """
+        best_epoch = self.get_best_epoch(stage)
+        self.plot_pred_per_epoch(stage, [best_epoch])
 
     def plot_hist(self, stage: str):
         """
