@@ -1,4 +1,4 @@
-![example workflow](https://github.com/receptor-ai/dsf-global/actions/workflows/test.yml/badge.svg)
+![example workflow](https://github.com/VolodymyrVozniak/universal-trainer/actions/workflows/test.yml/badge.svg)
 
 # Table of Contents
 <ul>
@@ -22,7 +22,7 @@
 To install this repo as Python lib just run the following command:
 
 ```sh
-pip install git+https://github.com/VolodymyrVozniak/universal-trainer.git
+pip install git+https://github.com/VolodymyrVozniak/universal-trainer
 ```
 
 </br>
