@@ -78,15 +78,14 @@ class _TrainAnalyzer(_Base):
         )
         fig.show()
 
-    @staticmethod
-    def get_stages() -> List[str]:
+    def get_stages(self) -> List[str]:
         """
         Gets list of stages.
 
         Returns:
             list: List of stages.
         """
-        return ["cv", "test", "final"]
+        return list(self.results.keys())
 
     def get_metrics(self) -> List[str]:
         """
