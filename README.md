@@ -410,7 +410,7 @@ analyzer.plot_all("cv")
 analyzer.plot_all("test")
 analyzer.plot_all("final")
 
-metrics = get_df_metrics()
+metrics = analyzer.get_df_metrics()
 ```
 
 For more details check [tutorial](https://colab.research.google.com/drive/1s21Mn0ieNo5YJ4qLNDFBPEUTC874UfcK)
@@ -429,7 +429,7 @@ analyzer.plot_all("cv")
 analyzer.plot_all("test")
 analyzer.plot_all("final")
 
-metrics = get_df_metrics()
+metrics = analyzer.get_df_metrics()
 ```
 
 For more details check [tutorial](https://colab.research.google.com/drive/1PA7bFGQRGazfSBhF8yQoAo7ocq0UGWi-)
@@ -452,7 +452,7 @@ analyzer.plot_all("cv")
 analyzer.plot_all("test")
 analyzer.plot_all("final")
 
-metrics = get_df_metrics()
+metrics = analyzer.get_df_metrics()
 ```
 
 For more details check [tutorial](https://colab.research.google.com/drive/1zW_I4JRRvCOoo5oNB1U3fWCfaJC8gB6s)
