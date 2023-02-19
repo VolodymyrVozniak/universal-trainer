@@ -90,7 +90,7 @@ ids_to_features = dict(zip(np.arange(len(y)), x))
 ids_to_targets = dict(zip(np.arange(len(y)), y))
 
 # Initialize preproc class
-preproc = BinaryPreproc(ids_to_targets, ids_to_features)
+preproc = BinaryPreproc(ids_to_features, ids_to_targets)
 
 # Plot input targets histogram
 preproc.plot_targets(prepared=False)
@@ -144,7 +144,7 @@ ids_to_features = dict(zip(np.arange(len(y)), x))
 ids_to_targets = dict(zip(np.arange(len(y)), y))
 
 # Initialize preproc class
-preproc = RegressionPreproc(ids_to_targets, ids_to_features)
+preproc = RegressionPreproc(ids_to_features, ids_to_targets)
 
 # Plot input targets histogram
 preproc.plot_targets(prepared=False)
@@ -198,7 +198,7 @@ ids_to_features = dict(zip(np.arange(len(y)), x))
 ids_to_targets = dict(zip(np.arange(len(y)), y))
 
 # Initialize preproc class
-preproc = RegressionPreproc(ids_to_targets, ids_to_features)
+preproc = MulticlassPreproc(ids_to_features, ids_to_targets)
 
 # Plot input targets histogram
 preproc.plot_targets(prepared=False)
