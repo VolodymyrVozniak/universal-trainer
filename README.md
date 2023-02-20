@@ -90,7 +90,7 @@ ids_to_features = dict(zip(np.arange(len(y)), x))
 ids_to_targets = dict(zip(np.arange(len(y)), y))
 
 # Initialize preproc class
-preproc = BinaryPreproc(ids_to_targets, ids_to_features)
+preproc = BinaryPreproc(ids_to_features, ids_to_targets)
 
 # Plot input targets histogram
 preproc.plot_targets(prepared=False)
@@ -144,7 +144,7 @@ ids_to_features = dict(zip(np.arange(len(y)), x))
 ids_to_targets = dict(zip(np.arange(len(y)), y))
 
 # Initialize preproc class
-preproc = RegressionPreproc(ids_to_targets, ids_to_features)
+preproc = RegressionPreproc(ids_to_features, ids_to_targets)
 
 # Plot input targets histogram
 preproc.plot_targets(prepared=False)
@@ -198,7 +198,7 @@ ids_to_features = dict(zip(np.arange(len(y)), x))
 ids_to_targets = dict(zip(np.arange(len(y)), y))
 
 # Initialize preproc class
-preproc = RegressionPreproc(ids_to_targets, ids_to_features)
+preproc = MulticlassPreproc(ids_to_features, ids_to_targets)
 
 # Plot input targets histogram
 preproc.plot_targets(prepared=False)
@@ -410,7 +410,7 @@ analyzer.plot_all("cv")
 analyzer.plot_all("test")
 analyzer.plot_all("final")
 
-metrics = get_df_metrics()
+metrics = analyzer.get_df_metrics()
 ```
 
 For more details check [tutorial](https://colab.research.google.com/drive/1s21Mn0ieNo5YJ4qLNDFBPEUTC874UfcK)
@@ -429,7 +429,7 @@ analyzer.plot_all("cv")
 analyzer.plot_all("test")
 analyzer.plot_all("final")
 
-metrics = get_df_metrics()
+metrics = analyzer.get_df_metrics()
 ```
 
 For more details check [tutorial](https://colab.research.google.com/drive/1PA7bFGQRGazfSBhF8yQoAo7ocq0UGWi-)
@@ -452,7 +452,7 @@ analyzer.plot_all("cv")
 analyzer.plot_all("test")
 analyzer.plot_all("final")
 
-metrics = get_df_metrics()
+metrics = analyzer.get_df_metrics()
 ```
 
 For more details check [tutorial](https://colab.research.google.com/drive/1zW_I4JRRvCOoo5oNB1U3fWCfaJC8gB6s)
