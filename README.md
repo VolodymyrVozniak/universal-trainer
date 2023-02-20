@@ -239,7 +239,7 @@ There is 1 main class for training:
 Training pipeline
 1. Trains in CV mode (meaning trains model on train set of specific fold and checks model performance on val set of specific fold with passed value for epochs and gets avarage performance on each epoch by avaraging scores for all folds), chooses best epoch and saves all results (losses, metrics on each epoch for train and val sets, best result, training time, unique ids, true values and predicted values on each epoch for val set). Results on each fold are also saved.
 2. Trains in test mode (meaning trains model on train set and checks model performance on test set with chosen number of epochs on the CV stage) and saves all results (losses, metrics on each epoch for train and test sets, best result, training time, unique ids, true values and predicted values on each epoch for test set).
-3. Trains in final mode (meaning trains model on all data with chosen number of epochs on the CV stage) and saves all results (losses, metrics on each epoch for train and test sets, best result, training time, unique ids, true values and predicted values on each epoch for test set). Here train and test are the same: all possible data, but the metrics can differ, because train set is always shuffled, while test set isn't.
+3. Trains in final mode (meaning trains model on all data with chosen number of epochs on the CV stage) and saves all results (losses, metrics on each epoch for train and test sets, best result, training time, unique ids, true values and predicted values on each epoch for test set). Here train and test are the same: all possible data, but the metrics can differ, because train set is always shuffled, while test set isn't. You can skip this step py passing `include_final=False` when call the `train()` method.
 
 Examples
 
@@ -282,7 +282,7 @@ params = {
     "epochs": 100
 }
 
-results, model_weights = trainer.train(params)
+results, model_weights = trainer.train(params, inlcude_final=True)
 ```
 
 For more details check [tutorial](https://colab.research.google.com/drive/1s21Mn0ieNo5YJ4qLNDFBPEUTC874UfcK)
@@ -328,7 +328,7 @@ params = {
     "epochs": 100
 }
 
-results, model_weights = trainer.train(params)
+results, model_weights = trainer.train(params, inlcude_final=True)
 ```
 
 For more details check [tutorial](https://colab.research.google.com/drive/1PA7bFGQRGazfSBhF8yQoAo7ocq0UGWi-)
@@ -375,7 +375,7 @@ params = {
     "epochs": 100
 }
 
-results, model_weights = trainer.train(params)
+results, model_weights = trainer.train(params, inlcude_final=True)
 ```
 
 For more details check [tutorial](https://colab.research.google.com/drive/1zW_I4JRRvCOoo5oNB1U3fWCfaJC8gB6s)

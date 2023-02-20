@@ -56,6 +56,7 @@ def test_regression():
         "epochs": 100
     }
     results, model_weights = trainer.train(params)
+    assert model_weights is not None
 
     analyzer = RegressionAnalyzer(results)
 

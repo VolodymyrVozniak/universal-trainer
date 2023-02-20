@@ -57,6 +57,7 @@ def test_multiclass():
         "epochs": 100
     }
     results, model_weights = trainer.train(params)
+    assert model_weights is not None
 
     def postprocess_fn(model_output):
         return np.argmax(model_output, axis=1)

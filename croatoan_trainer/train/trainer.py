@@ -1,5 +1,5 @@
 import logging
-from typing import Dict, Callable, Any, Tuple
+from typing import Dict, Callable, Any, Tuple, Union
 
 import torch
 from torch.utils.data import DataLoader
@@ -113,7 +113,9 @@ class Trainer():
     def train(
         self,
         params: Dict[str, Any],
-    ) -> Tuple[Dict[str, Dict[str, Any]], Dict[str, torch.Tensor]]:
+        include_final: bool = True
+    ) -> Tuple[Dict[str, Dict[str, Any]],
+               Union[None, Dict[str, torch.Tensor]]]:
         """
         Trains model.
         Trains on CV, chooses best epoch, then trains on test with exactly
@@ -123,16 +125,22 @@ class Trainer():
             `params` (dict): Params for model with keys: `model`
             (kwargs for `self.model_class`), `optimizer` (kwargs for
             `self.optimizer_class`), `batch_size` and `epochs`.
+            `include_final` (bool): Flag to train final model
+            (meaning training on all data and check performance on all
+            data to get model, which can be used for inference).
+            Default is `True`.
 
         Returns:
-            tuple: Dictionary with `cv`, `test` and `final` as keys and
-            dict with results for each stage as values (which contains
-            lossses for each epoch inside `losses`, dict with metrics returned
-            by `self.get_metrics` function for each epoch inside `metrics`,
-            best epoch and best metrics inside `best_result`, training time
-            inside `time`, list with unique ids inside `ids`, list with real
-            values inside `true` and list with model outputs for each
-            epoch inside `pred`) and model weights for final model.
+            tuple: Dictionary with `cv`, `test` and `final` (optionally)
+            as keys and dict with results for each stage as values
+            (which contains lossses for each epoch inside `losses`,
+            dict with metrics returned by `self.get_metrics` function
+            for each epoch inside `metrics`, best epoch and best metrics
+            inside `best_result`, training time inside `time`, list with
+            unique ids inside `ids`, list with real values inside `true`
+            and list with model outputs for each epoch inside `pred`)
+            and model weights for final model if `include_final=True`,
+            `None` otherwise.
         """
         self._init_logs(file=True, console=True)
 
@@ -170,21 +178,24 @@ class Trainer():
             direction=self.direction
         )
 
-        all_data = train_test["train"] + train_test["test"]
-        train_test = {"train": all_data, "test": all_data}
-        results["final"], model_weights = run_test(
-            train_test_split=train_test,
-            features=self.preprocessed_data.features,
-            targets=self.preprocessed_data.targets,
-            dataset_class=self.dataset_class,
-            loader_class=self.loader_class,
-            model_class=self.model_class,
-            criterion=self.criterion,
-            optimizer_class=self.optimizer_class,
-            params=params,
-            get_metrics=self.get_metrics,
-            main_metric=self.main_metric,
-            direction=self.direction
-        )
+        if include_final:
+            all_data = train_test["train"] + train_test["test"]
+            train_test = {"train": all_data, "test": all_data}
+            results["final"], model_weights = run_test(
+                train_test_split=train_test,
+                features=self.preprocessed_data.features,
+                targets=self.preprocessed_data.targets,
+                dataset_class=self.dataset_class,
+                loader_class=self.loader_class,
+                model_class=self.model_class,
+                criterion=self.criterion,
+                optimizer_class=self.optimizer_class,
+                params=params,
+                get_metrics=self.get_metrics,
+                main_metric=self.main_metric,
+                direction=self.direction
+            )
+        else:
+            model_weights = None
 
         return results, model_weights

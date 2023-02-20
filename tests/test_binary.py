@@ -55,7 +55,8 @@ def test_binary():
         "batch_size": 32,
         "epochs": 100
     }
-    results, model_weights = trainer.train(params)
+    results, model_weights = trainer.train(params, include_final=False)
+    assert model_weights is None
 
     analyzer = BinaryAnalyzer(results)
 
@@ -67,12 +68,12 @@ def test_binary():
     analyzer.get_df_pred("cv")
 
     analyzer.get_df_metrics()
-    analyzer.get_metric_result("final", jaccard_score, True, zero_division=0)
+    analyzer.get_metric_result("cv", jaccard_score, True, zero_division=0)
 
     analyzer.print_classification_report("test")
 
     analyzer.plot_all("test")
-    analyzer.plot_pred_sample("final", 0)
+    analyzer.plot_pred_sample("cv", 0)
     analyzer.plot_confusion_matrix_per_epoch(
         stage="cv",
         epochs=range(9, analyzer.get_epochs("cv"), 10)
