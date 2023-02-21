@@ -100,7 +100,7 @@ class _ClassificationAnalyzer(_TrainAnalyzer):
                     annotation_epoch[k]['yref'] = f'y{i+1}'
             annotations += annotation_epoch
 
-        for annotation in tqdm(annotations):
+        for annotation in annotations:
             fig.add_annotation(annotation)
         fig.update_layout(
             **self.plotly_args,
