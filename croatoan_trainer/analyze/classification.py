@@ -2,6 +2,7 @@ from typing import List, Dict, Union, Callable, Any
 
 import numpy as np
 import plotly.figure_factory as ff
+from tqdm import tqdm
 from plotly.subplots import make_subplots
 from sklearn.metrics import confusion_matrix, classification_report
 
@@ -99,7 +100,7 @@ class _ClassificationAnalyzer(_TrainAnalyzer):
                     annotation_epoch[k]['yref'] = f'y{i+1}'
             annotations += annotation_epoch
 
-        for annotation in annotations:
+        for annotation in tqdm(annotations):
             fig.add_annotation(annotation)
         fig.update_layout(
             **self.plotly_args,

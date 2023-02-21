@@ -152,10 +152,9 @@ class BinaryAnalyzer(_ClassificationAnalyzer):
         Args:
             `stage` (str): One of stage from `get_stages()` method.
         """
-        df = self.get_df_pred(stage)
 
-        fpr, tpr, _ = roc_curve(df["True"], df["Pred"])
-        rocauc = roc_auc_score(df["True"], df["Pred"])
+        fpr, tpr, _ = self.get_metric_result(stage, roc_curve, round=False)
+        rocauc = self.get_metric_result(stage, roc_auc_score, round=False)
 
         fig = go.Figure()
 
@@ -183,10 +182,12 @@ class BinaryAnalyzer(_ClassificationAnalyzer):
         Args:
             `stage` (str): One of stage from `get_stages()` method.
         """
-        df = self.get_df_pred(stage)
 
-        precision, recall, thresholds \
-            = precision_recall_curve(df["True"],  df["Pred"])
+        precision, recall, thresholds = self.get_metric_result(
+            stage=stage,
+            metric=precision_recall_curve,
+            round=False
+        )
         prauc = float(auc(recall, precision))
 
         fig = go.Figure()
