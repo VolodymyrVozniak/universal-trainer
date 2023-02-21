@@ -2,7 +2,6 @@ from typing import List, Dict, Union, Callable, Any
 
 import numpy as np
 import plotly.figure_factory as ff
-from tqdm import tqdm
 from plotly.subplots import make_subplots
 from sklearn.metrics import confusion_matrix, classification_report
 
