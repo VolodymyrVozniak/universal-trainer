@@ -218,7 +218,7 @@ class _Preproc(_Base):
         Returns:
             pd.DataFrame: Dataframe with split's info.
         """
-        self._checker(self.split, f"random_split")
+        self._checker(self.split, "random_split")
 
         train_ids = self.split["train_test"]["train"]
         test_ids = self.split["train_test"]["test"]
@@ -251,19 +251,20 @@ class _Preproc(_Base):
             If `True` plot prepared targets, plot input targets otherwise
             (default is `False`).
         """
-        self._checker(self.split, f"random_split")
+        self._checker(self.split, "random_split")
 
         if prepared:
             target_col = "Prepared Targets"
+            targets = self.targets
         else:
             target_col = "Input Targets"
+            targets = dict(zip(self.df["ID"], self.df[target_col]))
 
         plot_split_targets_hist(
-            df=self.df,
-            main_column="ID",
+            split=self.split,
+            targets=targets,
+            id_column="ID",
             target_column=target_col,
-            train_test_split=self.split["train_test"],
-            cv_split=self.split["cv"],
             plotly_args=self.plotly_args
         )
 

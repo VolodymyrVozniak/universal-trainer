@@ -1,11 +1,9 @@
 from typing import List, Dict, Union
 
-import pandas as pd
-
-from .abstract import _Preproc
+from .classification import _ClassificationPreproc
 
 
-class MulticlassPreproc(_Preproc):
+class MulticlassPreproc(_ClassificationPreproc):
     """
     A class used to preprocess multiclassification data.
 
@@ -24,6 +22,8 @@ class MulticlassPreproc(_Preproc):
         in random mode.
         `get_split_info()`: Gets split's info as dataframe.
         `plot_split_targets(prepared)`: Plots split targets.
+        `oversampling(min_count)`: Oversamples each class label to reach
+        `min_count` by adding extra ids to `self.splt` for train.
         `set_plotly_args(**kwargs)`: Sets args for plotly charts.
     """
 
@@ -34,8 +34,6 @@ class MulticlassPreproc(_Preproc):
     ):
         super().__init__(ids_to_features, ids_to_targets)
 
-    # Work with targets
-
     def prepare_targets(self):
         """Prepares targets."""
         targets = self.df["Input Targets"].astype('float32')
@@ -45,9 +43,3 @@ class MulticlassPreproc(_Preproc):
 
         print("[INFO] Prepared targets were successfully saved "
               "to `self.targets`!")
-
-    # Work with splits
-
-    @staticmethod
-    def _get_stratify(df: pd.DataFrame):
-        return df["Prepared Targets"]
