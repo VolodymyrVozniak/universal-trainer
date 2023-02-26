@@ -94,7 +94,7 @@ class _TrainAnalyzer(_Base):
         Returns:
             list: List of metrics.
         """
-        return list(self.results["test"]["metrics"]["train"][0].keys())
+        return list(self.results["test"]["best_result"]["metrics"].keys())
 
     def get_folds(self) -> int:
         """
