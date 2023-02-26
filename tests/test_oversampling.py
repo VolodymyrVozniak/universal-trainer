@@ -9,7 +9,8 @@ def test_oversampling():
         n_samples=1000,
         n_classes=3,
         weights=[0.7, 0.1, 0.2],
-        n_clusters_per_class=1
+        n_clusters_per_class=1,
+        random_state=42
     )
 
     ids_to_features = dict(zip(np.arange(len(y)), x))

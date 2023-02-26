@@ -47,7 +47,7 @@ class _ClassificationPreproc(_Preproc):
         self.split["train_test"]["train"] = new_train_df["ID"].tolist()
 
         for i, fold in enumerate(self.split["cv"]):
-            train_df = new_train_df[new_train_df.isin(fold["train"])]
+            train_df = new_train_df[new_train_df["ID"].isin(fold["train"])]
             self.split["cv"][i]["train"] = train_df["ID"].tolist()
 
     @staticmethod
