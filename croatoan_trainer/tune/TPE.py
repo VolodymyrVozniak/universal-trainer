@@ -18,7 +18,7 @@ class TPETuner(_Tuner):
         `params` (dict): Special type of dict with parameters to tune.
         Must include keys 'model' (dictionary with all paramaters for
         defined model class that will be used for training), 'optimizer'
-        (dectionary with defined 'lr' and 'weight_decay') and 'batch_size'.
+        (dictionary with defined 'lr' and 'weight_decay') and 'batch_size'.
     """
     def __init__(
         self,

@@ -39,10 +39,14 @@ class Trainer():
         and `f1` as `main_metric`.
 
     Methods:
-        `train(params)`: Trains model. Trains on CV, chooses best epoch,
-        then trains on test with exactly that number of epochs
-        and then trains final model on train + test data and returns
-        training results for each stage and model weights for final model.
+        `tune(tuner, epochs, n_trials, timeout, early_stopping_rounds)`: Tunes
+        parameters defined in `tuner.params` using `tuner.study`.
+        Returns best params that can be easily passed to `train()` method.
+        `train(params, epochs, include_final)`: Trains model. Trains on CV,
+        chooses best epoch, trains on test with exactly that number of epochs
+        and (optionally) trains final model on train + test data.
+        Returns training results for each stage and model weights for final
+        model if `include_final=True`, `None` otherwise.
         `print_logs()`: Prints training logs.
     """
 
@@ -122,7 +126,7 @@ class Trainer():
         early_stopping_rounds: Union[int, None] = None
     ) -> Dict[str, Any]:
         """
-        Tune parameters defined in `tuner.params` using `tuner.study`.
+        Tunes parameters defined in `tuner.params` using `tuner.study`.
 
         Args:
             `tuner` (_Tuner): `TunerTPE`, `TunerGrid` or `TunerRandom`
@@ -196,8 +200,9 @@ class Trainer():
                Union[None, Dict[str, torch.Tensor]]]:
         """
         Trains model.
-        Trains on CV, chooses best epoch, then trains on test with exactly
-        that number of epochs and then trains final model on train + test data.
+        Trains on CV, chooses best epoch,
+        trains on test with exactly that number of epochs and
+        (optionally) trains final model on train + test data.
 
         Args:
             `params` (dict): Params for model with keys: `model`
