@@ -42,10 +42,10 @@ class GridTuner(_Tuner):
             All entries for any parameter must be defined in the following way:
             {'`param`': (`param_type`, (`values`))}.
             Possible `param_type` and `values`:
-            - `('categorical', (<values>))` (will be used for
+            - `('categorical', (<values>))`: will be used for
             `suggest_categorical` optuna method;
-            - `('constant', value)` (`value` will be used as constant for all
-            trials and will not be tuned).
+            - `('constant', value)`: `value` will be used as constant for all
+            trials and will not be tuned.
 
             Examples:
             - `{'hidden_features': ('categorical', (64, 128, 256)}` (meaning
@@ -60,7 +60,7 @@ class GridTuner(_Tuner):
 
             `direction` (str): Direction of optimization. Set 'minimize'
             for minimization and 'maximize' for maximization.
-            Default is `'maximize'`:
+            Default is `'maximize'`.
 
             `load_if_exists` (bool): Flag to control the behavior to handle a
             conflict of study names. Default is `False`.

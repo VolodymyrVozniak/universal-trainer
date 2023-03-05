@@ -42,14 +42,14 @@ class RandomTuner(_Tuner):
             All entries for any parameter must be defined in the following way:
             {'`param`': (`param_type`, (`values`))}.
             Possible `param_type` and `values`:
-            - `('int', (low, high, step, log))` (will be used for `suggest_int`
-            optuna method; `low` and `high` are both included in the range);
-            - `('float', (low, high, log))` (will be used for `suggest_float`
-            optuna method; `low` and `high` are both included in the range);
-            - `('categorical', (<values>))` (will be used for
+            - `('int', (low, high, step, log))`: will be used for `suggest_int`
+            optuna method; `low` and `high` are both included in the range;
+            - `('float', (low, high, log))`: will be used for `suggest_float`
+            optuna method; `low` and `high` are both included in the range;
+            - `('categorical', (<values>))`: will be used for
             `suggest_categorical` optuna method;
-            - `('constant', value)` (`value` will be used as constant for all
-            trials and will not be tuned).
+            - `('constant', value)`: `value` will be used as constant for all
+            trials and will not be tuned.
 
             Examples:
             - `{'n_layers': ('int', (1, 3, 1, False))}` (meaning take int
@@ -68,7 +68,7 @@ class RandomTuner(_Tuner):
 
             `direction` (str): Direction of optimization. Set 'minimize'
             for minimization and 'maximize' for maximization.
-            Default is `'maximize'`:
+            Default is `'maximize'`.
 
             `load_if_exists` (bool): Flag to control the behavior to handle a
             conflict of study names. Default is `False`.
