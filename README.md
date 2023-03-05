@@ -10,6 +10,7 @@
     <ul>
       <li><a href="#preprocessing">Preprocessing<a></li>
       <li><a href="#training">Training</a></li>
+      <li><a href="#tuning">Tuning</a></li>
       <li><a href="#analyzing">Analyzing</a></li>
     </ul>
   </li>
@@ -34,6 +35,7 @@ torch>=1.13.0
 scikit-learn>=1.2.0
 pandas>=1.5.2
 plotly>=5.7.0
+optuna>=2.10.0
 ```
 
 </br>
@@ -376,6 +378,219 @@ params = {
 }
 
 results, model_weights = trainer.train(params, inlcude_final=True)
+```
+
+For more details check [tutorial](https://colab.research.google.com/drive/1zW_I4JRRvCOoo5oNB1U3fWCfaJC8gB6s)
+
+<p align="right">(<a href="#top">back to top</a>)</p>
+
+## Tuning
+
+There are 3 main classes for defining tuner:
+* `TPETuner` - for tuning parameters using TPE (Tree-structured Parzen Estimator) algorithm (optuna default). For more details check [this link](https://optuna.readthedocs.io/en/stable/reference/samplers/generated/optuna.samplers.TPESampler.html#optuna.samplers.TPESampler);
+* `RandomTuner` - for tuning parameters using random sampling. For more details check [this link](https://optuna.readthedocs.io/en/stable/reference/samplers/generated/optuna.samplers.RandomSampler.html#optuna.samplers.RandomSampler);
+* `GridTuner` - for tuning parameters using grid search. For more details check [this link](https://optuna.readthedocs.io/en/stable/reference/samplers/generated/optuna.samplers.GridSampler.html#optuna.samplers.GridSampler).
+
+Tuning pipeline
+1. Initialize tuner class with params for tuning.
+2. Tune parameters using trainer class and `tune()` method.
+3. Get best params and pass them to `train()` method.
+
+Examples
+
+* Binary problem
+
+```python
+import torch
+from torch.utils.data import DataLoader
+from torch.optim import Adam
+
+from croatoan_trainer.tune import TPETuner
+from croatoan_trainer.train import Trainer
+from croatoan_trainer.train.dataset import CroatoanDataset
+from croatoan_trainer.train.model import BinarySimpleMLP
+from croatoan_trainer.train.metrics import get_metrics_binary
+
+
+tune_params = {
+    "model": {
+        "in_features": ("constant", x.shape[1]),
+        "hidden_features": ("int", (18, 22, 2, False)),
+        "dropout": ("float", (0.1, 0.5, False))
+    },
+    "optimizer": {
+        "lr": ("constant", 1e-3),
+        "weight_decay": ("constant", 5*1e-5)
+    },
+    "batch_size": ("categorical", (32, 64))
+}
+
+tuner = TPETuner(
+    params=tune_params,
+    storage=None,
+    study_name="binary",
+    direction="maximize",
+    load_if_exists=False
+)
+
+trainer = Trainer(
+    preprocessed_data=preproc,
+    dataset_class=CroatoanDataset,
+    loader_class=DataLoader,
+    model_class=BinarySimpleMLP,
+    optimizer_class=Adam,
+    criterion=torch.nn.BCELoss(),
+    get_metrics=get_metrics_binary,
+    main_metric="f1",
+    direction="maximize"
+)
+
+params = trainer.tune(
+    tuner=tuner,
+    epochs=20,
+    n_trials=2,
+    timeout=None,
+    early_stopping_rounds=None
+)
+
+results, model_weights = trainer.train(
+    params=params,
+    epochs=100,
+    include_final=True
+)
+```
+
+For more details check [tutorial](https://colab.research.google.com/drive/1s21Mn0ieNo5YJ4qLNDFBPEUTC874UfcK)
+
+<p align="right">(<a href="#top">back to top</a>)</p>
+
+* Regression problem
+
+```python
+import torch
+from torch.utils.data import DataLoader
+from torch.optim import Adam
+
+from croatoan_trainer.tune import RandomTuner
+from croatoan_trainer.train import Trainer
+from croatoan_trainer.train.dataset import CroatoanDataset
+from croatoan_trainer.train.model import RegressionSimpleMLP
+from croatoan_trainer.train.metrics import get_metrics_regression
+
+
+tune_params = {
+    "model": {
+        "in_features": ("constant", x.shape[1]),
+        "hidden_features": ("int", (18, 22, 2, False)),
+        "dropout": ("float", (0.1, 0.5, False))
+    },
+    "optimizer": {
+        "lr": ("constant", 1e-3),
+        "weight_decay": ("constant", 5*1e-5)
+    },
+    "batch_size": ("categorical", (32, 64))
+}
+
+tuner = RandomTuner(
+    params=tune_params,
+    storage=None,
+    study_name="regression",
+    direction="minimize",
+    load_if_exists=False
+)
+
+trainer = Trainer(
+    preprocessed_data=preproc,
+    dataset_class=CroatoanDataset,
+    loader_class=DataLoader,
+    model_class=RegressionSimpleMLP,
+    optimizer_class=Adam,
+    criterion=torch.nn.MSELoss(),
+    get_metrics=get_metrics_regression,
+    main_metric="mae",
+    direction="minimize"
+)
+
+params = trainer.tune(
+    tuner=tuner,
+    epochs=20,
+    n_trials=2,
+    timeout=None,
+    early_stopping_rounds=None
+)
+
+results, model_weights = trainer.train(
+    params=params,
+    epochs=100,
+    include_final=True
+)
+```
+
+For more details check [tutorial](https://colab.research.google.com/drive/1PA7bFGQRGazfSBhF8yQoAo7ocq0UGWi-)
+
+<p align="right">(<a href="#top">back to top</a>)</p>
+
+* Multiclassification problem
+
+```python
+import torch
+from torch.utils.data import DataLoader
+from torch.optim import Adam
+
+from croatoan_trainer.tune import GridTuner
+from croatoan_trainer.train import Trainer
+from croatoan_trainer.train.dataset import CroatoanDataset
+from croatoan_trainer.train.model import MulticlassSimpleMLP
+from croatoan_trainer.train.metrics import get_metrics_multiclass
+
+
+tune_params = {
+    "model": {
+        "in_features": ("constant", x.shape[1]),
+        "hidden_features": ("categorical", (18, 20, 22)),
+        "output_features": ("constant", 3),
+        "dropout": ("categorical", (0.1, 0.25, 0.5)),
+    },
+    "optimizer": {
+        "lr": ("constant", 1e-3),
+        "weight_decay": ("constant", 5*1e-5)
+    },
+    "batch_size": ("categorical", (32, 64))
+}
+
+tuner = GridTuner(
+    params=tune_params,
+    storage=None,
+    study_name="multiclass",
+    direction="maximize",
+    load_if_exists=False
+)
+
+trainer = Trainer(
+    preprocessed_data=preproc,
+    dataset_class=CroatoanDataset,
+    loader_class=DataLoader,
+    model_class=MulticlassSimpleMLP,
+    optimizer_class=Adam,
+    criterion=torch.nn.CrossEntropyLoss(),
+    get_metrics=get_metrics_multiclass,
+    main_metric="f1",
+    direction="maximize"
+)
+
+params = trainer.tune(
+    tuner=tuner,
+    epochs=20,
+    n_trials=2,
+    timeout=None,
+    early_stopping_rounds=None
+)
+
+results, model_weights = trainer.train(
+    params=params,
+    epochs=100,
+    include_final=True
+)
 ```
 
 For more details check [tutorial](https://colab.research.google.com/drive/1zW_I4JRRvCOoo5oNB1U3fWCfaJC8gB6s)

@@ -53,10 +53,13 @@ def test_multiclass():
             "lr": 1e-3,
             "weight_decay": 5*1e-5
         },
-        "batch_size": 32,
-        "epochs": 100
+        "batch_size": 32
     }
-    results, model_weights = trainer.train(params)
+    results, model_weights = trainer.train(
+        params=params,
+        epochs=100,
+        include_final=True
+    )
     assert model_weights is not None
 
     def postprocess_fn(model_output):

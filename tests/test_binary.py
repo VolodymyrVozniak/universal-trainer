@@ -52,10 +52,13 @@ def test_binary():
             "lr": 1e-3,
             "weight_decay": 5*1e-5
         },
-        "batch_size": 32,
-        "epochs": 100
+        "batch_size": 32
     }
-    results, model_weights = trainer.train(params, include_final=False)
+    results, model_weights = trainer.train(
+        params=params,
+        epochs=100,
+        include_final=False
+    )
     assert model_weights is None
 
     analyzer = BinaryAnalyzer(results)

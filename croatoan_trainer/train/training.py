@@ -221,6 +221,7 @@ def run_cv(
     optimizer_class: torch.optim.Optimizer,
     criterion: torch.nn.modules.loss._Loss,
     params: Dict[str, Any],
+    epochs: int,
     get_metrics: Callable[[torch.Tensor, torch.Tensor], Dict[str, float]],
     main_metric: str,
     direction: str
@@ -263,7 +264,7 @@ def run_cv(
                 loaders=(loader_train, loader_val),
                 criterion=criterion,
                 optimizer=optimizer,
-                epochs=params["epochs"],
+                epochs=epochs,
                 cv=True,
                 main_metric=main_metric,
                 direction=direction,
@@ -286,7 +287,7 @@ def run_cv(
         losses, metrics, best_result = \
             _get_mean_results_cv(
                 results_per_fold=results_per_fold,
-                epochs=params["epochs"],
+                epochs=epochs,
                 main_metric=main_metric,
                 direction=direction
             )
@@ -318,6 +319,7 @@ def run_test(
     optimizer_class: torch.optim.Optimizer,
     criterion: torch.nn.modules.loss._Loss,
     params: Dict[str, Any],
+    epochs: int,
     get_metrics: Callable[[torch.Tensor, torch.Tensor], Dict[str, float]],
     main_metric: str,
     direction: str
@@ -359,7 +361,7 @@ def run_test(
             loaders=(loader_train, loader_val),
             criterion=criterion,
             optimizer=optimizer,
-            epochs=params["epochs"],
+            epochs=epochs,
             cv=False,
             main_metric=main_metric,
             direction=direction,

@@ -1,12 +1,15 @@
 import logging
 from typing import Dict, Callable, Any, Tuple, Union
 
+import optuna
 import torch
 from torch.utils.data import DataLoader
 
 from .dataset import CroatoanDataset
 from .training import run_cv, run_test
+from .tuning import EarlyStoppingCallback, objective
 from ..preprocess.abstract import _Preproc
+from ..tune.abstract import _Tuner
 
 
 class Trainer():
@@ -110,9 +113,84 @@ class Trainer():
             file_content = file.read()
         print(file_content)
 
+    def tune(
+        self,
+        tuner: _Tuner,
+        epochs: int,
+        n_trials: Union[int, None] = None,
+        timeout: Union[int, None] = None,
+        early_stopping_rounds: Union[int, None] = None
+    ) -> Dict[str, Any]:
+        """
+        Tune parameters defined in `tuner.params` using `tuner.study`.
+
+        Args:
+            `tuner` (_Tuner): `TunerTPE`, `TunerGrid` or `TunerRandom`
+            class object.
+            `epochs` (int): Number of epochs used to train each trial.
+            `n_trials` (int): Number of trials. If this argument is `None`,
+            there is no limitation on the number of trials. If `timeout`
+            is also set to `None`, the study continues to create trials
+            until it receives a termination signal such as Ctrl+C or SIGTERM.
+            Default is `None`.
+            `timeout` (int): Stop study after the given number of second(s).
+            If this argument is set to `None`, the study is executed without
+            time limitation. If `n_trials` is also set to `None`, the study
+            continues to create trials until it receives a termination signal
+            such as Ctrl+C or SIGTERM. Default is `None`.
+            `early_stopping_rounds` (int): Number of iterations in optuna
+            without improvements. If number number of iterations without
+            improvements is larger than this argument optuna will finish
+            optimization process. If set to `None` no early stopping will
+            be used. Default is `None`.
+
+        Returns:
+            dict: Dictionary with best parameters with keys 'model',
+            'optimizer' and 'batch_size' that can be easily pass to
+            `train()` method.
+        """
+        self._init_logs(file=False, console=True)
+
+        if early_stopping_rounds:
+            early_stopping = EarlyStoppingCallback(
+                early_stopping_rounds=early_stopping_rounds,
+                direction=self.direction
+            )
+            callbacks = [early_stopping]
+        else:
+            callbacks = None
+
+        def func(trial: optuna.trial.Trial):
+            return objective(
+                trial=trial,
+                tune_params=tuner.params,
+                tune_epochs=epochs,
+                cv_split=self.preprocessed_data.split["cv"],
+                features=self.preprocessed_data.features,
+                targets=self.preprocessed_data.targets,
+                dataset_class=self.dataset_class,
+                loader_class=self.loader_class,
+                model_class=self.model_class,
+                optimizer_class=self.optimizer_class,
+                criterion=self.criterion,
+                get_metrics=self.get_metrics,
+                main_metric=self.main_metric,
+                direction=self.direction
+            )
+
+        tuner.study.optimize(
+            func=func,
+            n_trials=n_trials,
+            timeout=timeout,
+            callbacks=callbacks
+        )
+
+        return tuner.study.best_trial.user_attrs["params"]
+
     def train(
         self,
         params: Dict[str, Any],
+        epochs: int,
         include_final: bool = True
     ) -> Tuple[Dict[str, Dict[str, Any]],
                Union[None, Dict[str, torch.Tensor]]]:
@@ -124,7 +202,8 @@ class Trainer():
         Args:
             `params` (dict): Params for model with keys: `model`
             (kwargs for `self.model_class`), `optimizer` (kwargs for
-            `self.optimizer_class`), `batch_size` and `epochs`.
+            `self.optimizer_class`) and `batch_size`.
+            `epochs` (int): Number of epochs used to train CV.
             `include_final` (bool): Flag to train final model
             (meaning training on all data and check performance on all
             data to get model, which can be used for inference).
@@ -156,12 +235,13 @@ class Trainer():
             criterion=self.criterion,
             optimizer_class=self.optimizer_class,
             params=params,
+            epochs=epochs,
             get_metrics=self.get_metrics,
             main_metric=self.main_metric,
             direction=self.direction
         )
 
-        params["epochs"] = results["cv"]["best_result"]["epoch"] + 1
+        epochs = results["cv"]["best_result"]["epoch"] + 1
         train_test = self.preprocessed_data.split["train_test"]
         results["test"], _ = run_test(
             train_test_split=train_test,
@@ -173,6 +253,7 @@ class Trainer():
             criterion=self.criterion,
             optimizer_class=self.optimizer_class,
             params=params,
+            epochs=epochs,
             get_metrics=self.get_metrics,
             main_metric=self.main_metric,
             direction=self.direction
@@ -191,6 +272,7 @@ class Trainer():
                 criterion=self.criterion,
                 optimizer_class=self.optimizer_class,
                 params=params,
+                epochs=epochs,
                 get_metrics=self.get_metrics,
                 main_metric=self.main_metric,
                 direction=self.direction
