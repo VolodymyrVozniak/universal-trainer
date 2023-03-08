@@ -58,6 +58,9 @@ There are 3 main classes for preprocessing:
 * `MulticlassPreproc` - for preprocessing multiclassification data.
 
 Preprocessing pipeline
+
+[MAIN]
+
 1. Prepare data for initializing preproc class.
     1. You will need a dictionary with unique ids as keys (unique ids can be just unique int numbers defined by `np.arange()` function) and features as values. You can somehow preprocess these features (one entry at a time) in Dataset class when train model, but if you want to use default `CroatoanDataset`, already define your feautures as final lists for each entry).
     2. Also, you will need a dictionary with unique ids as keys (these unique ids must match ids defined for features, meaning target with specific unique id must match features with this specific id) and targets as values.
@@ -68,6 +71,13 @@ Preprocessing pipeline
 3. Split data.
     1. Split data with random splitting type.
     2. For each splitting type you can get main info and plot targets histograms (distributions) for all sets and folds.
+
+[EXTRA]
+
+4. Oversampling (for binary and multiclassification problems only)
+    1. Oversample each class label to reach `min_count` by adding extra ids to `self.split` for train.
+5. Feature scaling.
+    1. Scale features using scaler from sklearn (fit scaler on train data got from splitting, transform all features using this scaler and save the scaler to class attribute).
 
 Examples
 
@@ -119,6 +129,9 @@ preproc.plot_split_targets(prepared=True)
 
 # Get info about splitting
 split_info = preproc.get_split_info()
+
+# Scale features
+preproc.scale_features("Standard")
 ```
 
 For more details check [tutorial](https://colab.research.google.com/drive/1s21Mn0ieNo5YJ4qLNDFBPEUTC874UfcK)

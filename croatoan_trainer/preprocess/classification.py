@@ -16,7 +16,7 @@ class _ClassificationPreproc(_Preproc):
     def oversampling(self, min_count: int):
         """
         Oversamples each class label to reach `min_count`
-        by adding extra ids to `self.splt` for train.
+        by adding extra ids to `self.split` for train.
 
         Args:
             `min_count`: each class label will have this

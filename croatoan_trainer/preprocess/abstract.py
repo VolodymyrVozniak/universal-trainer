@@ -279,12 +279,12 @@ class _Preproc(_Base):
         """
         Scale features using scaler from sklearn.
         Fit scaler on train data got from `random_split()` method,
-        transform all features using this scaler and save it to
-        self.scaler attribute.
+        transform all features using this scaler, save them to
+        `self.features` and save the scaler to `self.scaler` attribute.
 
         Args:
             `scaler` (str): Type of scaler to use from `sklearn`.
-            Now you can either 'Standard', 'MinMax', 'Robust', or 'MaxAbs'.
+            Now you can either use 'Standard', 'MinMax', 'Robust', or 'MaxAbs'.
             `**kwargs`: Any additional parameters for scaler from `sklearn`.
         """
         self._checker(self.split, "random_split")
