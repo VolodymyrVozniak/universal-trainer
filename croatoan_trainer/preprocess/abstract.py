@@ -303,23 +303,29 @@ class _Preproc(_Base):
         elif scaler == "MaxAbs":
             self.scaler = MaxAbsScaler(**kwargs)
 
-        train_test_split = self.split["train_test"]
-
         df = pd.DataFrame(list(self.features.values()))
         df["ID"] = self.features.keys()
 
-        df_train = df[df["ID"].isin(train_test_split["train"])]
-        train_ids = df_train["ID"].to_numpy()
-        X_train = df_train.drop(columns="ID")
+        train_ids = df[df["ID"].isin(
+            self.split["train_test"]["train"]
+        )]["ID"].to_numpy()
+        X_train = df[df["ID"].isin(
+            self.split["train_test"]["train"]
+        )].drop(columns="ID")
 
-        df_test = df[df["ID"].isin(train_test_split["test"])]
-        test_ids = df_test["ID"].to_numpy()
-        X_test = df_test.drop(columns="ID")
+        test_ids = df[df["ID"].isin(
+            self.split["train_test"]["test"]
+        )]["ID"].to_numpy()
+        X_test = df[df["ID"].isin(
+            self.split["train_test"]["test"]
+        )].drop(columns="ID")
+
+        del df
 
         X_train = self.scaler.fit_transform(X_train)
         X_test = self.scaler.transform(X_test)
 
-        ids = np.concatenate((train_ids, test_ids)).tolist()
-        features = np.concatenate((X_train, X_test)).tolist()
+        train_ids = np.concatenate((train_ids, test_ids)).tolist()
+        X_train = np.concatenate((X_train, X_test)).tolist()
 
-        self.features = dict(zip(ids, features))
+        self.features = dict(zip(train_ids, X_train))
