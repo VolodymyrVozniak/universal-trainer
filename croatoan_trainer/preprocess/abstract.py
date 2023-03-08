@@ -303,8 +303,10 @@ class _Preproc(_Base):
         elif scaler == "MaxAbs":
             self.scaler = MaxAbsScaler(**kwargs)
 
-        df = pd.DataFrame(list(self.features.values()))
+        df = pd.DataFrame(self.features.values())
         df["ID"] = self.features.keys()
+
+        del self.features
 
         train_ids = df[df["ID"].isin(
             self.split["train_test"]["train"]
