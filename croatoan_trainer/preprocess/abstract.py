@@ -4,6 +4,8 @@ from typing import List, Any, Dict, Union
 import pandas as pd
 import numpy as np
 from sklearn.model_selection import train_test_split, StratifiedKFold
+from sklearn.preprocessing import StandardScaler, MinMaxScaler, \
+    RobustScaler, MaxAbsScaler
 
 from ..base import _Base
 from ..utils.plotting import plot_targets_hist, plot_split_targets_hist
@@ -42,6 +44,7 @@ class _Preproc(_Base):
 
         self.targets = {}
         self.split = defaultdict(dict)
+        self.scaler = None
 
         self.set_plotly_args(font_size=14, template="plotly_dark", bargap=0.2)
 
@@ -271,3 +274,52 @@ class _Preproc(_Base):
     @staticmethod
     def _get_stratify():
         pass
+
+    def scale_features(self, scaler: str, **kwargs):
+        """
+        Scale features using scaler from sklearn.
+        Fit scaler on train data got from `random_split()` method,
+        transform all features using this scaler and save it to
+        self.scaler attribute.
+
+        Args:
+            `scaler` (str): Type of scaler to use from `sklearn`.
+            Now you can either 'Standard', 'MinMax', 'Robust', or 'MaxAbs'.
+            `**kwargs`: Any additional parameters for scaler from `sklearn`.
+        """
+        self._checker(self.split, "random_split")
+
+        available_scalers = ["Standard", "MinMax", "Robust", "MaxAbs"]
+        if scaler not in available_scalers:
+            raise ValueError(f"`{scaler}` is not supported! "
+                             f"Choose one of {available_scalers}!")
+
+        if scaler == "Standard":
+            self.scaler = StandardScaler(**kwargs)
+        elif scaler == "MinMax":
+            self.scaler = MinMaxScaler(**kwargs)
+        elif scaler == "Robust":
+            self.scaler = RobustScaler(**kwargs)
+        elif scaler == "MaxAbs":
+            self.scaler = MaxAbsScaler(**kwargs)
+
+        train_test_split = self.split["train_test"]
+
+        df = pd.DataFrame(list(self.features.values()))
+        df["ID"] = self.features.keys()
+
+        df_train = df[df["ID"].isin(train_test_split["train"])]
+        train_ids = df_train["ID"].to_numpy()
+        X_train = df_train.drop(columns="ID")
+
+        df_test = df[df["ID"].isin(train_test_split["test"])]
+        test_ids = df_test["ID"].to_numpy()
+        X_test = df_test.drop(columns="ID")
+
+        X_train = self.scaler.fit_transform(X_train)
+        X_test = self.scaler.transform(X_test)
+
+        ids = np.concatenate((train_ids, test_ids)).tolist()
+        features = np.concatenate((X_train, X_test)).tolist()
+
+        self.features = dict(zip(ids, features))

@@ -16,6 +16,9 @@ class RegressionPreproc(_Preproc):
         input and prepared targets.
         `targets` (dict): Prepared targets.
         `split` (dict): Prepared splits.
+        `scaler` (sklearn.scaler): Scaler from sklearn fitted on
+        train data from `self.split` if self.scale_features()
+        was called, None otherwise.
         `plotly_args` (dict): Dict with args for plotly charts.
 
     Methods:
@@ -25,6 +28,8 @@ class RegressionPreproc(_Preproc):
         in random mode.
         `get_split_info()`: Gets split's info as dataframe.
         `plot_split_targets(prepared)`: Plots split targets.
+        `scale_features(scaler, **kwargs)`: Scale features using scaler
+        from sklearn.
         `set_plotly_args(**kwargs)`: Sets args for plotly charts.
     """
 

@@ -13,6 +13,9 @@ class MulticlassPreproc(_ClassificationPreproc):
         input and prepared targets.
         `targets` (dict): Prepared targets.
         `split` (dict): Prepared splits.
+        `scaler` (sklearn.scaler): Scaler from sklearn fitted on
+        train data from `self.split` if self.scale_features()
+        was called, None otherwise.
         `plotly_args` (dict): Dict with args for plotly charts.
 
     Methods:
@@ -22,6 +25,8 @@ class MulticlassPreproc(_ClassificationPreproc):
         in random mode.
         `get_split_info()`: Gets split's info as dataframe.
         `plot_split_targets(prepared)`: Plots split targets.
+        `scale_features(scaler, **kwargs)`: Scale features using scaler
+        from sklearn.
         `oversampling(min_count)`: Oversamples each class label to reach
         `min_count` by adding extra ids to `self.splt` for train.
         `set_plotly_args(**kwargs)`: Sets args for plotly charts.

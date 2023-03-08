@@ -29,6 +29,7 @@ def test_binary():
     preproc.plot_split_targets(prepared=False)
     preproc.plot_split_targets(prepared=True)
     preproc.get_split_info()
+    preproc.scale_features("Standard")
 
     trainer = Trainer(
         preprocessed_data=preproc,
