@@ -213,7 +213,7 @@ def _get_mean_results_cv(results_per_fold, epochs, main_metric, direction):
 
 def run_cv(
     cv_split: List[Dict[str, List[Union[int, str]]]],
-    features: Dict[Union[int, str], List[float]],
+    features: Union[str, Dict[Union[int, str], List[float]]],
     targets: Dict[Union[int, str], float],
     dataset_class: CroatoanDataset,
     loader_class: DataLoader,
@@ -311,7 +311,7 @@ def run_cv(
 
 def run_test(
     train_test_split: Dict[str, List[Union[int, str]]],
-    features: Dict[Union[int, str], List[float]],
+    features: Union[str, Dict[Union[int, str], List[float]]],
     targets: Dict[Union[int, str], float],
     dataset_class: CroatoanDataset,
     loader_class: DataLoader,

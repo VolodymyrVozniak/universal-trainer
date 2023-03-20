@@ -8,7 +8,7 @@ from .abstract import _Preproc
 class _ClassificationPreproc(_Preproc):
     def __init__(
         self,
-        ids_to_features: Dict[Union[int, str], List[float]],
+        ids_to_features: Union[str, Dict[Union[int, str], List[float]]],
         ids_to_targets: Dict[Union[int, str], float]
     ):
         super().__init__(ids_to_features, ids_to_targets)

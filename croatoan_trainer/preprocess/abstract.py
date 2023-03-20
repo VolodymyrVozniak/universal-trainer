@@ -1,3 +1,4 @@
+import os
 from collections import defaultdict
 from typing import List, Any, Dict, Union
 
@@ -14,22 +15,35 @@ from ..utils.plotting import plot_targets_hist, plot_split_targets_hist
 class _Preproc(_Base):
     def __init__(
         self,
-        ids_to_features: Dict[Union[int, str], List[float]],
+        ids_to_features: Union[str, Dict[Union[int, str], List[float]]],
         ids_to_targets: Dict[Union[int, str], float],
     ):
         """
         Args:
-            `ids_to_features` (dict): Dict with unique ids as keys
+            `ids_to_features` ([dict; str]): Dict with unique ids as keys
             and features as values (that will be used in torch Dataset
-            while training model).
+            while training model) or path for folder with features saved to
+            different `.pkl` files where file names are unique ids and
+            file contents are features for particular unique id.
             `ids_to_targets` (dict): Dict with unique ids as keys
             and input targets as values.
 
         Raises:
+            `ValueError`: If there is wrong instance for `ids_to_features`
+            argument. Only dict and str are allowed.
             `ValueError`: If there are duplicates in `ids_to_targets` or
             `ids_to_features` dicts keys.
         """
-        unique_ids = list(ids_to_features.keys())
+        if isinstance(ids_to_features, dict):
+            unique_ids = list(ids_to_features.keys())
+        elif isinstance(ids_to_features, str):
+            unique_ids = os.listdir(ids_to_features)
+        else:
+            raise ValueError("Can't process features! Pass either dict with "
+                             "unique ids as keys and features as values or "
+                             "str path with unique ids as file names and "
+                             "features as file contents!")
+
         if len(set(unique_ids)) != len(unique_ids):
             raise ValueError("There are duplicates in unique ids! "
                              "Please check it and assign new unique "

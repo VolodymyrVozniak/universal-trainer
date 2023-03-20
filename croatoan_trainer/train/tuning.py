@@ -44,7 +44,7 @@ def objective(
     tune_params: Dict[str, Any],
     tune_epochs: int,
     cv_split: List[Dict[str, List[Union[int, str]]]],
-    features: Dict[Union[int, str], List[float]],
+    features: Union[str, Dict[Union[int, str], List[float]]],
     targets: Dict[Union[int, str], float],
     dataset_class: CroatoanDataset,
     loader_class: DataLoader,
