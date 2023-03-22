@@ -2,6 +2,8 @@ import torch
 import torch.nn as nn
 from torch.nn import Module
 
+from ..constants import DEVICE
+
 
 class BinarySimpleMLP(Module):
     """
@@ -35,7 +37,7 @@ class BinarySimpleMLP(Module):
         )
 
     def forward(self, data: torch.Tensor) -> torch.Tensor:
-        return self.model(data).reshape(-1)
+        return self.model(data.to(DEVICE)).reshape(-1)
 
 
 class RegressionSimpleMLP(Module):
@@ -68,7 +70,7 @@ class RegressionSimpleMLP(Module):
         )
 
     def forward(self, data: torch.Tensor) -> torch.Tensor:
-        return self.model(data).reshape(-1)
+        return self.model(data.to(DEVICE)).reshape(-1)
 
 
 class MulticlassSimpleMLP(Module):
@@ -103,4 +105,4 @@ class MulticlassSimpleMLP(Module):
         )
 
     def forward(self, data: torch.Tensor) -> torch.Tensor:
-        return self.model(data)
+        return self.model(data.to(DEVICE))

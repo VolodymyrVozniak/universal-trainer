@@ -24,7 +24,7 @@ def train_epoch(
     model.train()
 
     for features, y in loader_train:
-        features = features.to(DEVICE)
+        # features = features.to(DEVICE)
         y = y.float().to(DEVICE)
 
         optimizer.zero_grad()
@@ -61,7 +61,7 @@ def val_epoch(
     state = torch.get_rng_state()
 
     for features, y in loader_val:
-        features = features.to(DEVICE)
+        # features = features.to(DEVICE)
         y = y.float().to(DEVICE)
 
         with torch.no_grad():
