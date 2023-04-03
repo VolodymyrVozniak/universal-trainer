@@ -9,7 +9,7 @@ import torch
 from torch.utils.data import DataLoader
 
 from .dataset import CroatoanDataset
-from ..utils.utils import set_seed
+from ..utils.utils import set_seed, has_batch_norm
 from ..constants import DEVICE, SEED
 
 
@@ -17,7 +17,8 @@ def train_epoch(
     model: torch.nn.Module,
     loader_train: DataLoader,
     criterion: torch.nn.modules.loss._Loss,
-    optimizer: torch.optim.Optimizer
+    optimizer: torch.optim.Optimizer,
+    skip_one_bn: bool
 ) -> Tuple[torch.Tensor, torch.Tensor, float]:
 
     y_true, y_pred, losses = [], [], []
@@ -26,6 +27,11 @@ def train_epoch(
     for features, y in loader_train:
         # features = features.to(DEVICE)
         y = y.float().to(DEVICE)
+
+        # Skip 1 element in batch for BatchNorm layers
+        if skip_one_bn:
+            if len(y) == 1:
+                continue
 
         optimizer.zero_grad()
         y_pred_loader = model(features)
@@ -110,6 +116,11 @@ def train_val(
     verbose = epochs // 5 if epochs // 5 > 0 else 1
     model = model.to(DEVICE)
 
+    skip_one_bn = has_batch_norm(model)
+    if skip_one_bn:
+        logging.warning("All batches that contain only 1 element for training "
+                        "will be skipped!")
+
     losses = defaultdict(list)
     metrics = defaultdict(list)
 
@@ -122,7 +133,7 @@ def train_val(
 
     for epoch in range(epochs):
         y_true_train, y_pred_train, loss_train = \
-            train_epoch(model, loaders[0], criterion, optimizer)
+            train_epoch(model, loaders[0], criterion, optimizer, skip_one_bn)
         y_true_val, y_pred_val, loss_val = \
             val_epoch(model, loaders[1], criterion)
 

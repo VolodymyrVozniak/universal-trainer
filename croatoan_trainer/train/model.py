@@ -27,11 +27,11 @@ class BinarySimpleMLP(Module):
         super().__init__()
         self.model = nn.Sequential(
             nn.Linear(in_features, hidden_features),
-            nn.Dropout(dropout),
             nn.ReLU(),
+            nn.Dropout(dropout),
             nn.Linear(hidden_features, hidden_features),
-            nn.Dropout(dropout),
             nn.ReLU(),
+            nn.Dropout(dropout),
             nn.Linear(hidden_features, 1),
             nn.Sigmoid()
         )
@@ -61,11 +61,11 @@ class RegressionSimpleMLP(Module):
         super().__init__()
         self.model = nn.Sequential(
             nn.Linear(in_features, hidden_features),
-            nn.Dropout(dropout),
             nn.ReLU(),
+            nn.Dropout(dropout),
             nn.Linear(hidden_features, hidden_features),
-            nn.Dropout(dropout),
             nn.ReLU(),
+            nn.Dropout(dropout),
             nn.Linear(hidden_features, 1)
         )
 
@@ -96,11 +96,11 @@ class MulticlassSimpleMLP(Module):
         super().__init__()
         self.model = nn.Sequential(
             nn.Linear(in_features, hidden_features),
-            nn.Dropout(dropout),
             nn.ReLU(),
+            nn.Dropout(dropout),
             nn.Linear(hidden_features, hidden_features),
-            nn.Dropout(dropout),
             nn.ReLU(),
+            nn.Dropout(dropout),
             nn.Linear(hidden_features, output_features)
         )
 
