@@ -108,7 +108,8 @@ def objective(
         epochs=tune_epochs,
         get_metrics=get_metrics,
         main_metric=main_metric,
-        direction=direction
+        direction=direction,
+        include_epochs_pred=False
     )
 
     trial.set_user_attr("params", params)

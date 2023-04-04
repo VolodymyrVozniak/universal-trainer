@@ -17,6 +17,7 @@ class _TrainAnalyzer(_Base):
     ):
         self.results = results
         self.postprocess_fn = postprocess_fn
+        self._include_epochs_pred = True
         self.set_plotly_args(font_size=14, template="plotly_dark", bargap=0.2)
         # self.set_plotly_args(font_size=14, barmode="overlay", bargap=0.2)
 
@@ -27,6 +28,28 @@ class _TrainAnalyzer(_Base):
     def _check_metric(self, metric: str):
         if metric not in self.get_metrics() + ["loss"]:
             raise ValueError(f"`metric` must be in {self.get_metrics()}!")
+
+    def _get_pred(self, stage: str, epoch: int) -> List[float]:
+        if self.get_epochs(stage) == len(self.results[stage]["ids"]):
+            if self._include_epochs_pred:
+                print("[WARNING] In case of any errors set "
+                      "`self._include_epochs_pred` attribute to `False` "
+                      "if you have predictions only for the best epoch.")
+
+        if (len(self.results[stage]["pred"]) == self.get_epochs(stage)) \
+                and self._include_epochs_pred:
+            try:
+                pred = self.results[stage]["pred"][epoch]
+            except IndexError:
+                raise ValueError(f"There is no `{epoch}` epoch in "
+                                 f"`{stage}` stage!")
+        else:
+            pred = self.results[stage]["pred"]
+
+        if self.postprocess_fn:
+            pred = self.postprocess_fn(pred)
+
+        return pred
 
     def _plot(self, stage: str, metric: str, fold: Union[None, int] = None):
         self._check_stage(stage)
@@ -109,7 +132,7 @@ class _TrainAnalyzer(_Base):
         except KeyError:
             return 1
 
-    def get_epochs(self, stage) -> int:
+    def get_epochs(self, stage: str) -> int:
         """
         Gets number of epochs for stage.
 
@@ -122,7 +145,7 @@ class _TrainAnalyzer(_Base):
         self._check_stage(stage)
         return len(self.results[stage]["losses"]["train"])
 
-    def get_best_epoch(self, stage) -> int:
+    def get_best_epoch(self, stage: str) -> int:
         """
         Gets number of best epoch for stage.
 
@@ -160,10 +183,7 @@ class _TrainAnalyzer(_Base):
         ids = self.results[stage]["ids"]
         true = self.results[stage]["true"]
         best_epoch = self.get_best_epoch(stage)
-        pred = self.results[stage]["pred"][best_epoch]
-
-        if self.postprocess_fn:
-            pred = self.postprocess_fn(pred)
+        pred = self._get_pred(stage, best_epoch)
 
         return pd.DataFrame({"ID": ids, "True": true, "Pred": pred})
 
@@ -221,7 +241,12 @@ class _TrainAnalyzer(_Base):
         true = self.results[stage]['true'][index]
         pred = self.results[stage]['pred']
 
-        sample_pred = list(map(lambda x: x[index], pred))
+        try:
+            sample_pred = list(map(lambda x: x[index], pred))
+        except (TypeError, IndexError):
+            raise ValueError("`plot_pred_sample()` method is not available "
+                             "when you have predictions only for the "
+                             "best epoch!")
         if self.postprocess_fn:
             sample_pred = self.postprocess_fn(sample_pred)
         epochs = len(sample_pred)

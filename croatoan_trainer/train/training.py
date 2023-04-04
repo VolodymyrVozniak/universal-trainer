@@ -101,7 +101,8 @@ def train_val(
     cv: bool,
     get_metrics: Callable[[torch.Tensor, torch.Tensor], Dict[str, float]],
     main_metric: str,
-    direction: str
+    direction: str,
+    include_epochs_pred: bool
 ) -> Tuple[Dict[str, List[float]],
            Dict[str, List[Dict[str, float]]],
            Dict[str, Union[float, Dict[str, float]]],
@@ -126,6 +127,7 @@ def train_val(
 
     model_weights = None
     pred = list()
+    best_score = np.inf if direction == "minimize" else -np.inf
 
     log_template = "Epoch {ep:03d} train_loss: {t_loss:0.4f} "\
                    "{stage}_loss: {v_loss:0.4f} train_{metric}: "\
@@ -146,7 +148,18 @@ def train_val(
         metrics['train'].append(metrics_train)
         metrics[stage].append(metrics_val)
 
-        pred.append(y_pred_val.tolist())
+        if include_epochs_pred:
+            pred.append(y_pred_val.tolist())
+        else:
+            if stage == "val":
+                if direction == "minimize":
+                    if metrics_val[main_metric] < best_score:
+                        best_score = metrics_val[main_metric]
+                        pred = y_pred_val.tolist()
+                elif direction == "maximize":
+                    if metrics_val[main_metric] > best_score:
+                        best_score = metrics_val[main_metric]
+                        pred = y_pred_val.tolist()
 
         if epoch % verbose == 0 or epoch == epochs - 1:
             logging.info(log_template.format(
@@ -167,6 +180,8 @@ def train_val(
     elif stage == "test":
         best_epoch = epochs - 1
         model_weights = deepcopy(model.state_dict())
+        if not include_epochs_pred:
+            pred = y_pred_val.tolist()
 
     best_result = {
         "epoch": int(best_epoch),
@@ -235,7 +250,8 @@ def run_cv(
     epochs: int,
     get_metrics: Callable[[torch.Tensor, torch.Tensor], Dict[str, float]],
     main_metric: str,
-    direction: str
+    direction: str,
+    include_epochs_pred: bool
 ) -> Dict[str, Any]:
 
     logging.info(f"'{DEVICE}' is being used!")
@@ -246,6 +262,7 @@ def run_cv(
     all_ids = []
     all_true = []
     all_pred = None
+    concat_axis = 1 if include_epochs_pred else 0
 
     for i, ids in enumerate(cv_split):
         logging.info(f"Fold {i} is being trained...")
@@ -279,7 +296,8 @@ def run_cv(
                 cv=True,
                 main_metric=main_metric,
                 direction=direction,
-                get_metrics=get_metrics
+                get_metrics=get_metrics,
+                include_epochs_pred=include_epochs_pred
             )
 
         results = {}
@@ -292,7 +310,7 @@ def run_cv(
         all_ids += ids
         all_true += true
         all_pred = np.array(pred) if i == 0 \
-            else np.concatenate((all_pred, pred), axis=1)
+            else np.concatenate((all_pred, pred), axis=concat_axis)
 
     if len(cv_split) > 1:
         losses, metrics, best_result = \
@@ -333,7 +351,8 @@ def run_test(
     epochs: int,
     get_metrics: Callable[[torch.Tensor, torch.Tensor], Dict[str, float]],
     main_metric: str,
-    direction: str
+    direction: str,
+    include_epochs_pred: bool
 ) -> Tuple[Dict[str, Any], Dict[str, torch.Tensor]]:
 
     logging.info(f"'{DEVICE}' is being used!")
@@ -376,7 +395,8 @@ def run_test(
             cv=False,
             main_metric=main_metric,
             direction=direction,
-            get_metrics=get_metrics
+            get_metrics=get_metrics,
+            include_epochs_pred=include_epochs_pred
         )
 
     results = {}

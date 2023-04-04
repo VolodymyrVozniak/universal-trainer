@@ -66,13 +66,7 @@ class _ClassificationAnalyzer(_TrainAnalyzer):
         )
 
         for i, epoch in enumerate(epochs):
-            try:
-                pred = self.results[stage]['pred'][epoch]
-                if self.postprocess_fn:
-                    pred = self.postprocess_fn(pred)
-            except IndexError:
-                raise ValueError(f"There is no `{epoch}` epoch in "
-                                 f"`{stage}` stage!")
+            pred = self._get_pred(stage, epoch)
 
             cm = confusion_matrix(df["True"], np.round(pred))
             x_axes = [f"Pred {i}" for i in range(len(cm))]

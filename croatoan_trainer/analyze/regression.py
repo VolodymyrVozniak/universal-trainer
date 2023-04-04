@@ -133,13 +133,7 @@ class RegressionAnalyzer(_TrainAnalyzer):
         )
 
         for i, epoch in enumerate(epochs):
-            try:
-                pred = self.results[stage]['pred'][epoch]
-                if self.postprocess_fn:
-                    pred = self.postprocess_fn(pred)
-            except IndexError:
-                raise ValueError(f"There is no `{epoch}` epoch in "
-                                 f"`{stage}` stage!")
+            pred = self._get_pred(stage, epoch)
             fig.add_trace(
                 go.Scatter(
                     x=df["True"],
@@ -209,13 +203,7 @@ class RegressionAnalyzer(_TrainAnalyzer):
                 row=i // cols + 1,
                 col=i % cols + 1
             )
-            try:
-                pred = self.results[stage]['pred'][epoch]
-                if self.postprocess_fn:
-                    pred = self.postprocess_fn(pred)
-            except IndexError:
-                raise ValueError(f"There is no `{epoch}` epoch in "
-                                 f"`{stage}` stage!")
+            pred = self._get_pred(stage, epoch)
             fig.add_trace(
                 go.Histogram(x=pred, name=f"Epoch {epoch} Pred"),
                 row=i // cols + 1,
@@ -247,13 +235,7 @@ class RegressionAnalyzer(_TrainAnalyzer):
         best_epoch = self.get_best_epoch(stage)
 
         for epoch in epochs:
-            try:
-                pred = self.results[stage]['pred'][epoch]
-                if self.postprocess_fn:
-                    pred = self.postprocess_fn(pred)
-            except IndexError:
-                raise ValueError(f"There is no `{epoch}` epoch in "
-                                 f"`{stage}` stage!")
+            pred = self._get_pred(stage, epoch)
             hist_data.append(pred)
             if epoch == best_epoch:
                 group_labels.append(f"Best Epoch {epoch}")

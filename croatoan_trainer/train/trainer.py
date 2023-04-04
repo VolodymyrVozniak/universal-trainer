@@ -111,6 +111,13 @@ class Trainer():
             force=True
         )
 
+    def _check_split_epochs_pred(self, include_epochs_pred: bool):
+        if not include_epochs_pred:
+            if len(self.preprocessed_data.split["cv"]) > 1:
+                raise ValueError("You can't set `include_epochs_pred` to "
+                                 "`False` when there are more than 1 fold "
+                                 "in cv split!")
+
     def print_logs(self):
         """Prints training logs."""
         with open("logs.log", "r") as file:
@@ -195,7 +202,8 @@ class Trainer():
         self,
         params: Dict[str, Any],
         epochs: int,
-        include_final: bool = True
+        include_final: bool = True,
+        include_epochs_pred: bool = True
     ) -> Tuple[Dict[str, Dict[str, Any]],
                Union[None, Dict[str, torch.Tensor]]]:
         """
@@ -213,6 +221,13 @@ class Trainer():
             (meaning training on all data and check performance on all
             data to get model, which can be used for inference).
             Default is `True`.
+            `include_epochs_pred` (bool): Flag to include predictions for every
+            sample on val and test sets on every epochs (can be a number or
+            a vector). If `False`, keep predictions only on the best epoch.
+            For large vectors as outputs and/or large amount of samples it is
+            recommended to set this argument to `False` because the final
+            results may take a lot of memory. For now you can set this
+            parameter to `False` only for one-fold cv. Default is `True`.
 
         Returns:
             tuple: Dictionary with `cv`, `test` and `final` (optionally)
@@ -225,7 +240,13 @@ class Trainer():
             and list with model outputs for each epoch inside `pred`)
             and model weights for final model if `include_final=True`,
             `None` otherwise.
+
+        Raises:
+            `ValueError`: If `include_epochs_pred` is set to `False` and
+            there are more than one fold in cv.
         """
+        self._check_split_epochs_pred(include_epochs_pred)
+
         self._init_logs(file=True, console=True)
 
         results = {}
@@ -243,7 +264,8 @@ class Trainer():
             epochs=epochs,
             get_metrics=self.get_metrics,
             main_metric=self.main_metric,
-            direction=self.direction
+            direction=self.direction,
+            include_epochs_pred=include_epochs_pred
         )
 
         epochs = results["cv"]["best_result"]["epoch"] + 1
@@ -261,7 +283,8 @@ class Trainer():
             epochs=epochs,
             get_metrics=self.get_metrics,
             main_metric=self.main_metric,
-            direction=self.direction
+            direction=self.direction,
+            include_epochs_pred=include_epochs_pred
         )
 
         if include_final:
@@ -280,7 +303,8 @@ class Trainer():
                 epochs=epochs,
                 get_metrics=self.get_metrics,
                 main_metric=self.main_metric,
-                direction=self.direction
+                direction=self.direction,
+                include_epochs_pred=include_epochs_pred
             )
         else:
             model_weights = None
