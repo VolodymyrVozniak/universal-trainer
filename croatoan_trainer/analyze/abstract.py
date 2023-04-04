@@ -143,7 +143,10 @@ class _TrainAnalyzer(_Base):
             int: Number of epochs for stage.
         """
         self._check_stage(stage)
-        return len(self.results[stage]["losses"]["train"])
+        try:
+            return len(self.results[stage]["losses"]["train"])
+        except KeyError:
+            return 1
 
     def get_best_epoch(self, stage: str) -> int:
         """

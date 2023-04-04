@@ -294,10 +294,14 @@ params = {
         "weight_decay": 5*1e-5
     },
     "batch_size": 32,
-    "epochs": 100
 }
 
-results, model_weights = trainer.train(params, inlcude_final=True)
+results, model_weights = trainer.train(
+    params=params,
+    epochs=100,
+    inlcude_final=True,
+    include_epochs_pred=True
+)
 ```
 
 For more details check [tutorial](https://colab.research.google.com/drive/1s21Mn0ieNo5YJ4qLNDFBPEUTC874UfcK)
@@ -340,10 +344,14 @@ params = {
         "weight_decay": 5*1e-5
     },
     "batch_size": 32,
-    "epochs": 100
 }
 
-results, model_weights = trainer.train(params, inlcude_final=True)
+results, model_weights = trainer.train(
+    params=params,
+    epochs=100,
+    inlcude_final=True,
+    include_epochs_pred=True
+)
 ```
 
 For more details check [tutorial](https://colab.research.google.com/drive/1PA7bFGQRGazfSBhF8yQoAo7ocq0UGWi-)
@@ -387,10 +395,14 @@ params = {
         "weight_decay": 5*1e-5
     },
     "batch_size": 32,
-    "epochs": 100
 }
 
-results, model_weights = trainer.train(params, inlcude_final=True)
+results, model_weights = trainer.train(
+    params=params,
+    epochs=100,
+    inlcude_final=True,
+    include_epochs_pred=True
+)
 ```
 
 For more details check [tutorial](https://colab.research.google.com/drive/1zW_I4JRRvCOoo5oNB1U3fWCfaJC8gB6s)
@@ -411,7 +423,7 @@ Tuning pipeline
 
 Examples
 
-* Binary problem
+* Binary problem + TPETuner
 
 ```python
 import torch
@@ -469,7 +481,8 @@ params = trainer.tune(
 results, model_weights = trainer.train(
     params=params,
     epochs=100,
-    include_final=True
+    include_final=True,
+    include_epochs_pred=True
 )
 ```
 
@@ -477,7 +490,7 @@ For more details check [tutorial](https://colab.research.google.com/drive/1s21Mn
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-* Regression problem
+* Regression problem + RandomTuner
 
 ```python
 import torch
@@ -535,7 +548,8 @@ params = trainer.tune(
 results, model_weights = trainer.train(
     params=params,
     epochs=100,
-    include_final=True
+    include_final=True,
+    include_epochs_pred=True
 )
 ```
 
@@ -543,7 +557,7 @@ For more details check [tutorial](https://colab.research.google.com/drive/1PA7bF
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-* Multiclassification problem
+* Multiclassification problem + GridTuner
 
 ```python
 import torch
@@ -602,7 +616,8 @@ params = trainer.tune(
 results, model_weights = trainer.train(
     params=params,
     epochs=100,
-    include_final=True
+    include_final=True,
+    include_epochs_pred=True
 )
 ```
 

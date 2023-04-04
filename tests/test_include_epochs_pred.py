@@ -13,7 +13,7 @@ from croatoan_trainer.train.metrics import get_metrics_multiclass
 from croatoan_trainer.analyze import MulticlassAnalyzer
 
 
-def test_multiclass():
+def test_include_epochs_pred():
     data = load_iris()
     x = data['data']
     y = data['target']
@@ -75,7 +75,7 @@ def test_multiclass():
     analyzer.get_df_pred("cv")
 
     analyzer.get_df_metrics()
-    analyzer.get_metric_result("final", jaccard_score, average='macro')
+    analyzer.get_metric_result("cv", jaccard_score, average='macro')
 
     analyzer.print_classification_report("test")
 

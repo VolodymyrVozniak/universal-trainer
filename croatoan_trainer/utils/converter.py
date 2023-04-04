@@ -52,5 +52,5 @@ class ResultsConverter():
             "best_result": {"metrics": self.metrics, "epoch": 0},
             "ids": self.ids,
             "true": self.true,
-            "pred": [self.pred]
+            "pred": self.pred
         }}
