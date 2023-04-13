@@ -113,5 +113,6 @@ def objective(
     )
 
     trial.set_user_attr("params", params)
+    trial.set_user_attr("metrics", results["best_result"]["metrics"])
 
     return results["best_result"]["metrics"][main_metric]
