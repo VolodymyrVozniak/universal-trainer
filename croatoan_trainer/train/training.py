@@ -188,6 +188,9 @@ def train_val(
         "metrics": metrics[stage][best_epoch]
     }
 
+    logging.info(f"Training is finished! Best epoch: {best_result['epoch']}. "
+                 f"Metrics: {best_result['metrics']}.")
+
     true = y_true_val.tolist()
     ids = loaders[1].dataset.ids
     end_time = time.time() - start_time
