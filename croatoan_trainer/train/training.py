@@ -237,6 +237,9 @@ def _get_mean_results_cv(results_per_fold, epochs, main_metric, direction):
         "metrics": final_metrics["val"][best_epoch]
     }
 
+    logging.info(f"Mean results for folds. Best epoch: {best_result['epoch']}."
+                 f" Metrics: {best_result['metrics']}.")
+
     return final_losses, final_metrics, best_result
 
 
