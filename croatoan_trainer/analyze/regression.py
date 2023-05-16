@@ -41,6 +41,8 @@ class RegressionAnalyzer(_TrainAnalyzer):
         values.
         `plot_kde(stage)`: Plots kernel destiny estimation for true and
         final predicted values.
+        `plot_residuals_hist(stage)`: Plots residuals histogram for true and
+        final predicted values.
         `plot_all(stage)`: Plots main charts (losses, all metrics,
         true-predict dependency, histogram for true and final predicted values,
         kernel density estimation for true and final predicted values).
@@ -50,6 +52,8 @@ class RegressionAnalyzer(_TrainAnalyzer):
         predicted values per epochs.
         `plot_kde_per_epoch(stage, epochs)`: Plots kernel destiny estimation
         for true and predicted values per epochs.
+        `plot_residuals_hist_per_epoch(stage, epochs)`: Plots residuals
+        histogram for true and predicted values per epochs.
         `set_plotly_args(**kwargs)`: Sets args for plotly charts.
     """
 
@@ -258,6 +262,55 @@ class RegressionAnalyzer(_TrainAnalyzer):
         )
         fig.show()
 
+    def plot_residuals_hist_per_epoch(self, stage: str, epochs: List[int]):
+        """
+        Plots residuals histogram for true and predicted values per epochs.
+
+        Args:
+            `stage` (str): One of stage from `get_stages()` method.
+            `epochs` (list): List with epochs for plotting
+            (epochs counter started from 0). Examples are `[0, 24, 49, 74, 99]`
+            or `range(9, self.get_epochs("test"), 10)` (plot every 10th epoch).
+        """
+        df = self.get_df_pred(stage)
+
+        best_epoch = self.get_best_epoch(stage)
+
+        n_plots = len(epochs)
+        cols = 4 if n_plots > 4 else n_plots
+        rows = n_plots // cols if n_plots % cols == 0 else n_plots // cols + 1
+
+        subplot_titles = []
+        for epoch in epochs:
+            if epoch == best_epoch:
+                subplot_titles.append(f"Best Epoch {epoch}")
+            else:
+                subplot_titles.append(f"Epoch {epoch}")
+
+        fig = make_subplots(
+            rows=rows,
+            cols=cols,
+            x_title="Residual",
+            y_title="Count",
+            subplot_titles=subplot_titles
+        )
+
+        for i, epoch in enumerate(epochs):
+            pred = self._get_pred(stage, epoch)
+            residuals = df["True"].values - np.array(pred)
+            fig.add_trace(
+                go.Histogram(x=residuals, name=f"Epoch {epoch}"),
+                row=i // cols + 1,
+                col=i % cols + 1
+            )
+
+        # fig.update_traces(nbinsx=100)
+        fig.update_layout(
+            **self.plotly_args,
+            title_text=f"Residuals Histograms (stage: {stage})",
+        )
+        fig.show()
+
     def plot_pred(self, stage: str):
         """
         Plots True-Predict dependency.
@@ -280,13 +333,23 @@ class RegressionAnalyzer(_TrainAnalyzer):
 
     def plot_kde(self, stage: str):
         """
-        Plots kernel density estimation for true and predicted values.
+        Plots kernel density estimation for true and final predicted values.
 
         Args:
             `stage` (str): One of stage from `get_stages()` method.
         """
         best_epoch = self.get_best_epoch(stage)
         self.plot_kde_per_epoch(stage, [best_epoch])
+
+    def plot_residuals_hist(self, stage: str):
+        """
+        Plots residuals histogram for true and final predicted values.
+
+        Args:
+            `stage` (str): One of stage from `get_stages()` method.
+        """
+        best_epoch = self.get_best_epoch(stage)
+        self.plot_residuals_hist_per_epoch(stage, [best_epoch])
 
     def plot_all(self, stage):
         """
@@ -302,3 +365,4 @@ class RegressionAnalyzer(_TrainAnalyzer):
         self.plot_pred(stage)
         self.plot_hist(stage)
         self.plot_kde(stage)
+        self.plot_residuals_hist(stage)

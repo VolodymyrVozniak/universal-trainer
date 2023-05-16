@@ -88,3 +88,7 @@ def test_regression():
         stage="cv",
         epochs=range(9, analyzer.get_epochs("cv"), 10)
     )
+    analyzer.plot_residuals_hist_per_epoch(
+        stage="cv",
+        epochs=range(9, analyzer.get_epochs("cv"), 10)
+    )
