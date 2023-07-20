@@ -66,8 +66,8 @@ def get_metrics_regression(
         scores["mape"] = float(mean_absolute_percentage_error(y_true, y_pred))
         scores["r2"] = float(r2_score(y_true, y_pred))
     else:
-        scores["mse"], scores["mae"], scores["mape"], scores["r2"] \
-            = [-np.inf] * 4
+        scores["mse"], scores["mae"], scores["mape"] = [np.inf] * 3
+        scores["r2"] = -np.inf
     return scores
 
 

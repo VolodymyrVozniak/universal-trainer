@@ -122,9 +122,11 @@ class Trainer():
         if not file and not console:
             raise ValueError("Either `file` or `console` must be `True`!")
 
+        LOGGER.setLevel(logging.INFO)
         formatter = logging.Formatter(
             '%(asctime)s [%(levelname)s] %(message)s'
         )
+
         if file:
             # Due to incorrect logs in file in 'w' mode
             if LOG_MODE == "w":
@@ -132,13 +134,12 @@ class Trainer():
                     file.write("")
             f_handler = logging.FileHandler(LOG_FILENAME, LOG_MODE)
             f_handler.setFormatter(formatter)
+            LOGGER.addHandler(f_handler)
+
         if console:
             c_handler = logging.StreamHandler()
             c_handler.setFormatter(formatter)
-
-        LOGGER.setLevel(logging.INFO)
-        LOGGER.addHandler(c_handler)
-        LOGGER.addHandler(f_handler)
+            LOGGER.addHandler(c_handler)
 
     def _check_split_epochs_pred(self, include_epochs_pred: bool):
         if not include_epochs_pred:
