@@ -137,7 +137,8 @@ class _TrainAnalyzer(_Base):
         Gets number of epochs for stage.
 
         Args:
-            `stage` (str): One of stage from `get_stages()` method.
+            `stage` (str):
+                One of stage from `get_stages()` method.
 
         Returns:
             int: Number of epochs for stage.
@@ -153,7 +154,8 @@ class _TrainAnalyzer(_Base):
         Gets number of best epoch for stage.
 
         Args:
-            `stage` (str): One of stage from `get_stages()` method.
+            `stage` (str):
+                One of stage from `get_stages()` method.
 
         Returns:
             int: Number of best epoch for stage.
@@ -176,7 +178,8 @@ class _TrainAnalyzer(_Base):
         Gets dataframe with predictions.
 
         Args:
-            `stage` (str): One of stage from `get_stages()` method.
+            `stage` (str):
+                One of stage from `get_stages()` method.
 
         Returns:
             pd.DataFrame: Columns: `['ID', 'True', 'Pred']`.
@@ -199,11 +202,13 @@ class _TrainAnalyzer(_Base):
         Plots losses.
 
         Args:
-            `stage` (str): One of stage from `get_stages()` method.
-            `fold` (int): Number of CV fold.
-            Specify this parameter only when `stage` == `'cv'`.
-            If not specified and `stage` == `'cv'` plots mean results
-            for all CV folds (default is `None`).
+            `stage` (str):
+                One of stage from `get_stages()` method.
+            `fold` (int):
+                Number of CV fold.
+                Specify this parameter only when `stage` == `'cv'`.
+                If not specified and `stage` == `'cv'` plots mean results
+                for all CV folds. Default is `None`.
         """
         self._plot(stage, "loss", fold)
 
@@ -217,12 +222,15 @@ class _TrainAnalyzer(_Base):
         Plots metrics.
 
         Args:
-            `stage` (str): One of stage from `get_stages()` method.
-            `metrics` (list): List of metrics for plotting.
-            `fold` (int): Number of CV fold.
-            Specify this parameter only when `stage` == `'cv'`.
-            If not specified and `stage` == `'cv'`, plots mean results
-            for all CV folds (default is `None`).
+            `stage` (str):
+                One of stage from `get_stages()` method.
+            `metrics` (list):
+                List of metrics for plotting.
+            `fold` (int):
+                Number of CV fold.
+                Specify this parameter only when `stage` == `'cv'`.
+                If not specified and `stage` == `'cv'`, plots mean results
+                for all CV folds. Default is `None`.
         """
         for metric in metrics:
             self._plot(stage, metric, fold)
@@ -232,8 +240,10 @@ class _TrainAnalyzer(_Base):
         Plots predictions over epochs for specific entry.
 
         Args:
-            `stage` (str): One of stage from `get_stages()` method.
-            `id` (str): Unique id to identify specific entry.
+            `stage` (str):
+                One of stage from `get_stages()` method.
+            `id` (str):
+                Unique id to identify specific entry.
         """
         self._check_stage(stage)
 
@@ -288,11 +298,13 @@ class _TrainAnalyzer(_Base):
         Gets result dataframe with metrics.
 
         Args:
-            `stages` (list): List of stages for final dataframe
-            (default is `["cv", "test"]`).
+            `stages` (list):
+                List of stages for final dataframe.
+                Default is `["cv", "test"]`.
 
         Returns:
-            pd.DataFrame: Dataframe with metrics.
+            pd.DataFrame:
+                Dataframe with metrics.
         """
         for stage in stages:
             self._check_stage(stage)
@@ -324,12 +336,16 @@ class _TrainAnalyzer(_Base):
         Gets result for specific metric.
 
         Args:
-            `stage` (str): One of stage from `get_stages()` method.
-            `metric` (callable): Function that takes `y_true` and `y_pred`
-            in this order and gives float as output.
-            `round` (bool): Flag to work with binary values (if `True`)
-            or predictions (if `False`) (default is `True`).
-            `**kwargs`: Extra arguments for `metric` function.
+            `stage` (str):
+                One of stage from `get_stages()` method.
+            `metric` (callable):
+                Function that takes `y_true` and `y_pred`
+                in this order and gives float as output.
+            `round` (bool):
+                Flag to work with binary values (if `True`)
+                or predictions (if `False`). Default is `True`.
+            `**kwargs`:
+                Extra arguments for `metric` function.
 
         Returns:
             float: Metric's result.

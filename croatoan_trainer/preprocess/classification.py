@@ -19,8 +19,8 @@ class _ClassificationPreproc(_Preproc):
         by adding extra ids to `self.split` for train.
 
         Args:
-            `min_count`: each class label will have this
-            minimum entries for training.
+            `min_count`:
+                Each class label will have this minimum entries for training.
         """
         self._checker(self.split, "random_split")
 

@@ -22,9 +22,11 @@ class _ClassificationAnalyzer(_TrainAnalyzer):
         `sklearn.metrics.classification_report` function.
 
         Args:
-            `stage` (str): One of stage from `get_stages()` method.
-            `digits` (int): Number of digits for formatting output
-            floating point values (default is `3`).
+            `stage` (str):
+                One of stage from `get_stages()` method.
+            `digits` (int):
+                Number of digits for formatting output
+                floating point values. Default is `3`.
         """
         print(self.get_metric_result(
             stage=stage,
@@ -38,10 +40,13 @@ class _ClassificationAnalyzer(_TrainAnalyzer):
         Plots confusion matrix per epochs.
 
         Args:
-            `stage` (str): One of stage from `get_stages()` method.
-            `epochs` (list): List with epochs for plotting.
-            (epochs counter started from 0). Examples are `[0, 24, 49, 74, 99]`
-            or `range(9, self.get_epochs("test"), 10)` (plot every 10th epoch).
+            `stage` (str):
+                One of stage from `get_stages()` method.
+            `epochs` (list):
+                List with epochs for plotting (epochs counter started from 0).
+                Examples are `[0, 24, 49, 74, 99]`
+                or `range(9, self.get_epochs("test"), 10)`
+                (plot every 10th epoch).
         """
         df = self.get_df_pred(stage)
 
@@ -108,7 +113,8 @@ class _ClassificationAnalyzer(_TrainAnalyzer):
         Plots confusion matrix.
 
         Args:
-            `stage` (str): One of stage from `get_stages()` method.
+            `stage` (str):
+                One of stage from `get_stages()` method.
         """
         best_epoch = self.get_best_epoch(stage)
         self.plot_confusion_matrix_per_epoch(stage, [best_epoch])

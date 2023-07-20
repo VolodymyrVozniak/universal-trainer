@@ -2,8 +2,6 @@ import torch
 import torch.nn as nn
 from torch.nn import Module
 
-from ..constants import DEVICE
-
 
 class BinarySimpleMLP(Module):
     """
@@ -20,9 +18,12 @@ class BinarySimpleMLP(Module):
     ):
         """
         Args:
-            `in_features` (int): Number of features for input.
-            `hidden_features (ine)`: Number of features for hidden layers.
-            `dropout` (float): Dropout for dropout layers.
+            `in_features` (int):
+                Number of features for input.
+            `hidden_features (ine)`:
+                Number of features for hidden layers.
+            `dropout` (float):
+                Dropout for dropout layers.
         """
         super().__init__()
         self.model = nn.Sequential(
@@ -37,7 +38,7 @@ class BinarySimpleMLP(Module):
         )
 
     def forward(self, data: torch.Tensor) -> torch.Tensor:
-        return self.model(data.to(DEVICE)).reshape(-1)
+        return self.model(data).reshape(-1)
 
 
 class RegressionSimpleMLP(Module):
@@ -54,9 +55,12 @@ class RegressionSimpleMLP(Module):
     ):
         """
         Args:
-            `in_features` (int): Number of features for input.
-            `hidden_features` (int): Number of features for hidden layers.
-            `dropout` (float): Dropout for dropout layers.
+            `in_features` (int):
+                Number of features for input.
+            `hidden_features` (int):
+                Number of features for hidden layers.
+            `dropout` (float):
+                Dropout for dropout layers.
         """
         super().__init__()
         self.model = nn.Sequential(
@@ -70,7 +74,7 @@ class RegressionSimpleMLP(Module):
         )
 
     def forward(self, data: torch.Tensor) -> torch.Tensor:
-        return self.model(data.to(DEVICE)).reshape(-1)
+        return self.model(data).reshape(-1)
 
 
 class MulticlassSimpleMLP(Module):
@@ -88,10 +92,14 @@ class MulticlassSimpleMLP(Module):
     ):
         """
         Args:
-            `in_features` (int): Number of features for input.
-            `hidden_features` (int): Number of features for hidden layers.
-            `output_features` (int): Number of features for output.
-            `dropout` (float): Dropout for dropout layers.
+            `in_features` (int):
+                Number of features for input.
+            `hidden_features` (int):
+                Number of features for hidden layers.
+            `output_features` (int):
+                Number of features for output.
+            `dropout` (float):
+                Dropout for dropout layers.
         """
         super().__init__()
         self.model = nn.Sequential(
@@ -105,4 +113,4 @@ class MulticlassSimpleMLP(Module):
         )
 
     def forward(self, data: torch.Tensor) -> torch.Tensor:
-        return self.model(data.to(DEVICE))
+        return self.model(data)

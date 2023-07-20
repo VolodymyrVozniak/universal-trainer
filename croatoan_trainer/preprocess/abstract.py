@@ -20,41 +20,47 @@ class _Preproc(_Base):
     ):
         """
         Args:
-            `ids_to_features` ([dict; str]): Dict with unique ids as keys
-            and features as values (that will be used in torch Dataset
-            while training model) or path for folder with features saved to
-            different `.pkl` files where file names are unique ids and
-            file contents are features for particular unique id.
-            `ids_to_targets` (dict): Dict with unique ids as keys
-            and input targets as values.
+            `ids_to_features` ([dict; str]):
+                Dict with unique ids as keys and features as values
+                (that will be used in torch Dataset while training model)
+                or path for folder with features saved to different `.pkl`
+                files, where file names are unique ids and file contents]
+                are features for particular unique id.
+            `ids_to_targets` (dict):
+                Dict with unique ids as keys and input targets as values.
 
         Raises:
-            `ValueError`: If there is wrong instance for `ids_to_features`
-            argument. Only dict and str are allowed.
-            `ValueError`: If there are duplicates in `ids_to_targets` or
-            `ids_to_features` dicts keys.
+            `ValueError`:
+                If there is wrong instance for `ids_to_features` argument.
+                Only dict and str are allowed.
+            `ValueError`:
+                If there are duplicates in `ids_to_targets` or
+                `ids_to_features` dicts keys.
         """
         if isinstance(ids_to_features, dict):
             unique_ids = list(ids_to_features.keys())
         elif isinstance(ids_to_features, str):
             unique_ids = os.listdir(ids_to_features)
         else:
-            raise ValueError("Can't process features! Pass either dict with "
-                             "unique ids as keys and features as values or "
-                             "str path with unique ids as file names and "
-                             "features as file contents!")
+            raise ValueError(
+                "Can't process features! Pass either dict with unique ids as "
+                "keys and features as values or str path with unique ids as "
+                "file names and features as file contents!"
+            )
 
         if len(set(unique_ids)) != len(unique_ids):
-            raise ValueError("There are duplicates in unique ids! "
-                             "Please check it and assign new unique "
-                             "ids without duplicates!")
+            raise ValueError(
+                "There are duplicates in unique ids! Please check it and "
+                "assign new unique ids without duplicates!"
+            )
         self.features = ids_to_features
 
         self.df = self._make_df(ids_to_targets)
         if self.df["ID"].nunique() != len(self.df):
-            raise ValueError("There are duplicates in unique ids! "
-                             "Please check it and assign new unique "
-                             "ids without duplicates!")
+            raise ValueError(
+                "There are duplicates in unique ids! Please check it and "
+                "assign new unique ids without duplicates!"
+            )
 
         self.targets = {}
         self.split = defaultdict(dict)
@@ -82,9 +88,9 @@ class _Preproc(_Base):
         Plots targets.
 
         Args:
-            `prepared` (bool): Flag to plot prepared targets.
-            If `True` plot prepared targets, plot input targets otherwise
-            (default is `False`).
+            `prepared` (bool):
+                Flag to plot prepared targets. If `True` plot prepared targets,
+                plot input targets otherwise. Default is `False`.
         """
         if prepared:
             self._checker(self.targets, "prepare_targets")
@@ -180,13 +186,16 @@ class _Preproc(_Base):
         and one id in train set or val set for CV).
 
         Args:
-            `test_size` (float): Fraction of data for test (default is `0.2`).
-            `n_folds` (int): Number of CV folds.
-            Can be `1` meaning validation set.
-            If `1`, `val_size` must be specified (default is `5`).
-            `val_size` (float): Fraction of data for validation.
-            Must be specified if `n_folds` == `1` (default is `None`).
-            `seed` (int): Seed for splitting (default is `51983`).
+            `test_size` (float):
+                Fraction of data for test. Default is `0.2`.
+            `n_folds` (int):
+                Number of CV folds. Can be `1` meaning validation set.
+                If `1`, `val_size` must be specified. Default is `5`.
+            `val_size` (float):
+                Fraction of data for validation. Must be specified if
+                `n_folds` == `1`. Default is `None`.
+            `seed` (int):
+                Seed for splittin. Default is `51983`.
         """
         params = locals()
         params.pop("self")
@@ -264,9 +273,9 @@ class _Preproc(_Base):
         Plots split targets.
 
         Args:
-            `prepared` (bool): Flag to plot prepared targets.
-            If `True` plot prepared targets, plot input targets otherwise
-            (default is `False`).
+            `prepared` (bool):
+                Flag to plot prepared targets. If `True` plot prepared targets,
+                plot input targets otherwise. Default is `False`.
         """
         self._checker(self.split, "random_split")
 
@@ -297,9 +306,12 @@ class _Preproc(_Base):
         `self.features` and save the scaler to `self.scaler` attribute.
 
         Args:
-            `scaler` (str): Type of scaler to use from `sklearn`.
-            Now you can either use 'Standard', 'MinMax', 'Robust', or 'MaxAbs'.
-            `**kwargs`: Any additional parameters for scaler from `sklearn`.
+            `scaler` (str):
+                Type of scaler to use from `sklearn`.
+                Now you can either use 'Standard', 'MinMax', 'Robust',
+                or 'MaxAbs'.
+            `**kwargs`:
+                Any additional parameters for scaler from `sklearn`.
         """
         self._checker(self.split, "random_split")
 

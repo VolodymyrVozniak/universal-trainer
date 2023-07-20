@@ -13,48 +13,66 @@ class RegressionAnalyzer(_TrainAnalyzer):
     A class used to analyze info about trained regression model.
 
     Attributes:
-        `results` (dict): Dictionary with results per each stage
-        after training. Keys are `cv`, `test` and `final`.
-        Main keys for each stage are `losses`, `metrics`, `best_result`.
-        `time`, `ids`, `true` and `pred`
-        `postprocess_fn` (callable): Function that takes list with
-        model outputs from `pred` key for each stage in `results`
-        and somehow processes them.
-        `plotly_args` (dict): Dict with args for plotly charts.
+        `results` (dict):
+            Dictionary with results per each stage after training.
+            Keys are `cv`, `test` and `final`. Main keys for each stage are
+            `losses`, `metrics`, `best_result`, `time`, `ids`,
+            `true` and `pred`
+        `postprocess_fn` (callable):
+            Function that takes list with model outputs from `pred` key for
+            each stage in `results` and somehow processes them.
+        `plotly_args` (dict):
+            Dict with args for plotly charts.
 
     Methods:
-        `get_stages()`: Gets list of stages.
-        `get_metrics()`: Gets list of metrics used in training.
-        `get_folds()`: Gets number of folds used in training.
-        `get_epochs(stage)`: Gets number of epochs for stage.
-        `get_best_epoch(stage)`: Gets number of best epoch for stage.
-        `get_time()`: Gets train time in seconds for all stages.
-        `get_df_pred(stage)`: Gets dataframe with predictions.
-        `get_df_metrics(stages)`: Gets dataframe with metrics.
-        `get_metric_result(stage, metric, **kwargs)`: Gets result for metric.
-        `plot_losses(stage, fold)`: Plots losses.
-        `plot_metrics(stage, metrics, fold)`: Plots metrics.
-        `plot_pred_sample(stage, id)`: Plots predictions over epochs
-        for one unique id.
-        `plot_pred(stage)`: Plots True-Predict dependency.
-        `plot_hist(stage)`: Plots histogram for true and final predicted
-        values.
-        `plot_kde(stage)`: Plots kernel destiny estimation for true and
-        final predicted values.
-        `plot_residuals_hist(stage)`: Plots residuals histogram for true and
-        final predicted values.
-        `plot_all(stage)`: Plots main charts (losses, all metrics,
-        true-predict dependency, histogram for true and final predicted values,
-        kernel density estimation for true and final predicted values).
-        `plot_pred_per_epoch(stage, epochs)`: Plots True-Predict dependency
-        per epochs.
-        `plot_hist_per_epoch(stage, epochs)`: Plots histograms for true and
-        predicted values per epochs.
-        `plot_kde_per_epoch(stage, epochs)`: Plots kernel destiny estimation
-        for true and predicted values per epochs.
-        `plot_residuals_hist_per_epoch(stage, epochs)`: Plots residuals
-        histogram for true and predicted values per epochs.
-        `set_plotly_args(**kwargs)`: Sets args for plotly charts.
+        `get_stages()`:
+            Gets list of stages.
+        `get_metrics()`:
+            Gets list of metrics used in training.
+        `get_folds()`:
+            Gets number of folds used in training.
+        `get_epochs(stage)`:
+            Gets number of epochs for stage.
+        `get_best_epoch(stage)`:
+            Gets number of best epoch for stage.
+        `get_time()`:
+            Gets train time in seconds for all stages.
+        `get_df_pred(stage)`:
+            Gets dataframe with predictions.
+        `get_df_metrics(stages)`:
+            Gets dataframe with metrics.
+        `get_metric_result(stage, metric, **kwargs)`:
+            Gets result for metric.
+        `plot_losses(stage, fold)`:
+            Plots losses.
+        `plot_metrics(stage, metrics, fold)`:
+            Plots metrics.
+        `plot_pred_sample(stage, id)`:
+            lots predictions over epochs for one unique id.
+        `plot_pred(stage)`:
+            Plots True-Predict dependency.
+        `plot_hist(stage)`:
+            Plots histogram for true and final predicted values.
+        `plot_kde(stage)`:
+            Plots kernel destiny estimation for true and
+            final predicted values.
+        `plot_residuals_hist(stage)`:
+            Plots residuals histogram for true and final predicted values.
+        `plot_all(stage)`:
+            Plots main charts (losses, all metrics, true-predict dependency,
+            histogram for true and final predicted values, kernel density
+            estimation for true and final predicted values).
+        `plot_pred_per_epoch(stage, epochs)`:
+            Plots True-Predict dependency per epochs.
+        `plot_hist_per_epoch(stage, epochs)`:
+            Plots histograms for true and predicted values per epochs.
+        `plot_kde_per_epoch(stage, epochs)`:
+            Plots kernel destiny estimation for true and predicted values
+            per epochs.
+        `plot_residuals_hist_per_epoch(stage, epochs)`:
+            Plots residuals histogram for true and predicted values per epochs.
+        `set_plotly_args(**kwargs)`:
+            Sets args for plotly charts.
     """
 
     def __init__(
@@ -64,18 +82,19 @@ class RegressionAnalyzer(_TrainAnalyzer):
     ):
         """
         Args:
-            `results` (dict): Dictionary with results per each stage
-            after training. Keys are `cv`, `test` and `final` and
-            values are dicts with results for each stage (which contain
-            lossses for each epoch inside `losses`, dict with metrics
-            for each epoch inside `metrics`, best epoch and best metrics
-            inside `best_result`, training time inside `time`,
-            list with unique ids inside `ids`, list with true values
-            inside `true` and list with model outputs for each
-            epoch inside `pred`).
-            `postprocess_fn` (callable): Function that takes list with
-            model outputs from `pred` key for each stage in `results`
-            and somehow processes them (default is `None`).
+            `results` (dict):
+                Dictionary with results per each stage after training.
+                Keys are `cv`, `test` and `final` and values are dicts with
+                results for each stage (which contain lossses for each epoch
+                inside `losses`, dict with metrics for each epoch inside
+                `metrics`, best epoch and best metrics inside `best_result`,
+                training time inside `time`, list with unique ids inside `ids`,
+                list with true values inside `true` and list with model
+                outputs for each epoch inside `pred`).
+            `postprocess_fn` (callable):
+                Function that takes list with model outputs from `pred` key
+                for each stage in `results` and somehow processes them.
+                Default is `None`.
         """
         super().__init__(results, postprocess_fn)
 
@@ -89,10 +108,13 @@ class RegressionAnalyzer(_TrainAnalyzer):
         Gets result for specific metric.
 
         Args:
-            `stage` (str): One of stage from `get_stages()` method.
-            `metric` (callable): Function that takes `y_true` and `y_pred`
-            in this order and gives float as output.
-            `**kwargs`: Extra arguments for `metric` function.
+            `stage` (str):
+                One of stage from `get_stages()` method.
+            `metric` (callable):
+                Function that takes `y_true` and `y_pred`
+                in this order and gives float as output.
+            `**kwargs`:
+                Extra arguments for `metric` function.
 
         Returns:
             float: Metric's result.
@@ -104,10 +126,13 @@ class RegressionAnalyzer(_TrainAnalyzer):
         Plots True-Predict dependency per epochs.
 
         Args:
-            `stage` (str): One of stage from `get_stages()` method.
-            `epochs` (list): List with epochs for plotting
-            (epochs counter started from 0). Examples are `[0, 24, 49, 74, 99]`
-            or `range(9, self.get_epochs("test"), 10)` (plot every 10th epoch).
+            `stage` (str):
+                One of stage from `get_stages()` method.
+            `epochs` (list):
+                List with epochs for plotting (epochs counter started from 0).
+                Examples are `[0, 24, 49, 74, 99]`
+                or `range(9, self.get_epochs("test"), 10)`
+                (plot every 10th epoch).
         """
 
         df = self.get_df_pred(stage)
@@ -173,10 +198,13 @@ class RegressionAnalyzer(_TrainAnalyzer):
         Plots histograms for true and predicted values per epochs.
 
         Args:
-            `stage` (str): One of stage from `get_stages()` method.
-            `epochs` (list): List with epochs for plotting.
-            (epochs counter started from 0). Examples are `[0, 24, 49, 74, 99]`
-            or `range(9, self.get_epochs("test"), 10)` (plot every 10th epoch).
+            `stage` (str):
+                One of stage from `get_stages()` method.
+            `epochs` (list):
+                List with epochs for plotting (epochs counter started from 0).
+                Examples are `[0, 24, 49, 74, 99]`
+                or `range(9, self.get_epochs("test"), 10)`
+                (plot every 10th epoch).
         """
         df = self.get_df_pred(stage)
 
@@ -227,10 +255,13 @@ class RegressionAnalyzer(_TrainAnalyzer):
         per epochs.
 
         Args:
-            `stage` (str): One of stage from `get_stages()` method.
-            `epochs` (list): List with epochs for plotting
-            (epochs counter started from 0). Examples are `[0, 24, 49, 74, 99]`
-            or `range(9, self.get_epochs("test"), 10)` (plot every 10th epoch).
+            `stage` (str):
+                One of stage from `get_stages()` method.
+            `epochs` (list):
+                List with epochs for plotting (epochs counter started from 0).
+                Examples are `[0, 24, 49, 74, 99]`
+                or `range(9, self.get_epochs("test"), 10)`
+                (plot every 10th epoch).
         """
         df = self.get_df_pred(stage)
         hist_data = [df["True"]]
@@ -267,10 +298,13 @@ class RegressionAnalyzer(_TrainAnalyzer):
         Plots residuals histogram for true and predicted values per epochs.
 
         Args:
-            `stage` (str): One of stage from `get_stages()` method.
-            `epochs` (list): List with epochs for plotting
-            (epochs counter started from 0). Examples are `[0, 24, 49, 74, 99]`
-            or `range(9, self.get_epochs("test"), 10)` (plot every 10th epoch).
+            `stage` (str):
+                One of stage from `get_stages()` method.
+            `epochs` (list):
+                List with epochs for plotting (epochs counter started from 0).
+                Examples are `[0, 24, 49, 74, 99]`
+                or `range(9, self.get_epochs("test"), 10)`
+                (plot every 10th epoch).
         """
         df = self.get_df_pred(stage)
 
@@ -316,7 +350,8 @@ class RegressionAnalyzer(_TrainAnalyzer):
         Plots True-Predict dependency.
 
         Args:
-            `stage` (str): One of stage from `get_stages()` method.
+            `stage` (str):
+                One of stage from `get_stages()` method.
         """
         best_epoch = self.get_best_epoch(stage)
         self.plot_pred_per_epoch(stage, [best_epoch])
@@ -326,7 +361,8 @@ class RegressionAnalyzer(_TrainAnalyzer):
         Plots histograms for true and final predicted values.
 
         Args:
-            `stage` (str): One of stage from `get_stages()` method.
+            `stage` (str):
+                One of stage from `get_stages()` method.
         """
         best_epoch = self.get_best_epoch(stage)
         self.plot_hist_per_epoch(stage, [best_epoch])
@@ -336,7 +372,8 @@ class RegressionAnalyzer(_TrainAnalyzer):
         Plots kernel density estimation for true and final predicted values.
 
         Args:
-            `stage` (str): One of stage from `get_stages()` method.
+            `stage` (str):
+                One of stage from `get_stages()` method.
         """
         best_epoch = self.get_best_epoch(stage)
         self.plot_kde_per_epoch(stage, [best_epoch])
@@ -346,7 +383,8 @@ class RegressionAnalyzer(_TrainAnalyzer):
         Plots residuals histogram for true and final predicted values.
 
         Args:
-            `stage` (str): One of stage from `get_stages()` method.
+            `stage` (str):
+                One of stage from `get_stages()` method.
         """
         best_epoch = self.get_best_epoch(stage)
         self.plot_residuals_hist_per_epoch(stage, [best_epoch])
@@ -358,7 +396,8 @@ class RegressionAnalyzer(_TrainAnalyzer):
         kernel density estimation for true and final predicted values).
 
         Args:
-            `stage` (str): One of stage from `get_stages()` method.
+            `stage` (str):
+                One of stage from `get_stages()` method.
         """
         self.plot_losses(stage)
         self.plot_metrics(stage, self.get_metrics())

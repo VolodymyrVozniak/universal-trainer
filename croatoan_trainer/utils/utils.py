@@ -1,9 +1,13 @@
 import random
 import pickle
+import pkg_resources
+from typing import Union, List, Any
 
 import numpy as np
 import torch
 import torch.nn as nn
+
+from ..constants import DEVICE
 
 
 def set_seed(seed: int):
@@ -17,14 +21,36 @@ def set_seed(seed: int):
         torch.backends.cudnn.benchmark = False
 
 
-def load_pkl(path: str):
+def load_pkl(path: str) -> Any:
     with open(path, "rb") as f:
         return pickle.load(f)
 
 
-def has_batch_norm(model: torch.nn.Module):
+def features_to_device(
+    features: Union[List[torch.Tensor], torch.Tensor]
+) -> Union[List[torch.Tensor], torch.Tensor]:
+    if isinstance(features, list):
+        return list(map(lambda x: x.to(DEVICE), features))
+    elif isinstance(features, torch.Tensor):
+        return features.to(DEVICE)
+    else:
+        raise ValueError(
+            f"Unsupported type: `{type(features)}` for features in dataset! "
+            "Supported types: `list` and `torch.Tensor`!"
+        )
+
+
+def has_batch_norm(model: torch.nn.Module) -> bool:
     bn_layers = (nn.BatchNorm1d, nn.BatchNorm2d, nn.BatchNorm3d)
     for module in model.modules():
         if isinstance(module, bn_layers):
             return True
     return False
+
+
+def check_compile() -> bool:
+    torch_version = pkg_resources.get_distribution("torch").version
+    if int(torch_version.split(".")[0]) == 2:
+        return True
+    else:
+        return False

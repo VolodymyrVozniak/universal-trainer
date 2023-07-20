@@ -15,45 +15,64 @@ class BinaryAnalyzer(_ClassificationAnalyzer):
     A class used to analyze info about trained binary model.
 
     Attributes:
-        `results` (dict): Dictionary with results per each stage
-        after training. Keys are `cv`, `test` and `final`.
-        Main keys for each stage are `losses`, `metrics`, `best_result`
-        `time`, `ids`, `true` and `pred`.
-        `postprocess_fn` (callable): Function that takes list with
-        model outputs from `pred` key for each stage in `results`
-        and somehow processes them.
-        `plotly_args` (dict): Dict with args for plotly charts.
+        `results` (dict):
+            Dictionary with results per each stage after training.
+            Keys are `cv`, `test` and `final`. Main keys for each stage are
+            `losses`, `metrics`, `best_result`, `time`, `ids`,
+            `true` and `pred`.
+        `postprocess_fn` (callable):
+            Function that takes list with model outputs from `pred` key for
+            each stage in `results` and somehow processes them.
+        `plotly_args` (dict):
+            Dict with args for plotly charts.
 
     Methods:
-        `get_stages()`: Gets list of stages.
-        `get_metrics()`: Gets list of metrics used in training.
-        `get_folds()`: Gets number of folds used in training.
-        `get_epochs(stage)`: Gets number of epochs for stage.
-        `get_best_epoch(stage)`: Gets number of best epoch for stage.
-        `get_time()`: Gets train time in seconds for all stages.
-        `get_df_pred(stage)`: Gets dataframe with predictions.
-        `get_df_metrics(stages)`: Gets dataframe with metrics.
-        `get_metric_result(stage, metric, round, **kwargs)`: Gets result
-        for metric.
-        `print_classification_report(stage, digits)`: Prints classification
-        report.
-        `plot_losses(stage, fold)`: Plots losses.
-        `plot_metrics(stage, metrics, fold)`: Plots metrics.
-        `plot_pred_sample(stage, id)`: Plots predictions over epochs
-        for one unique id.
-        `plot_confusion_matrix(stage)`: Plots confusion matrix.
-        `plot_pred_hist(stage)`: Plots prediction histogram for best epoch.
-        `plot_roc_auc(stage)`: Plots ROC-AUC chart.
-        `plot_precision_recall_auc(stage)`: Plots Precision-Recall AUC chart.
-        `plot_enrichment(stage)`: Plots enrichment chart.
-        `plot_all(stage)`: Plots main charts (losses, all metrics,
-        confusion matrix, prediction histogram for best epoch,
-        ROC-AUC curve, Precision-Recall AUC curve, enrichment).
-        `plot_confusion_matrix_per_epoch(stage, epochs)`: Plots confusion
-        matrix per epochs.
-        `plot_pred_hist_per_epoch(stage, epochs)`: Plots prediction histograms
-        per epochs.
-        `set_plotly_args(**kwargs)`: Sets args for plotly charts.
+        `get_stages()`:
+            Gets list of stages.
+        `get_metrics()`:
+            Gets list of metrics used in training.
+        `get_folds()`:
+            Gets number of folds used in training.
+        `get_epochs(stage)`:
+            Gets number of epochs for stage.
+        `get_best_epoch(stage)`:
+            Gets number of best epoch for stage.
+        `get_time()`:
+            Gets train time in seconds for all stages.
+        `get_df_pred(stage)`:
+            Gets dataframe with predictions.
+        `get_df_metrics(stages)`:
+            Gets dataframe with metrics.
+        `get_metric_result(stage, metric, round, **kwargs)`:
+            Gets results for metric.
+        `print_classification_report(stage, digits)`:
+            Prints classification report.
+        `plot_losses(stage, fold)`:
+            Plots losses.
+        `plot_metrics(stage, metrics, fold)`:
+            Plots metrics.
+        `plot_pred_sample(stage, id)`:
+            Plots predictions over epochs for one unique id.
+        `plot_confusion_matrix(stage)`:
+            Plots confusion matrix.
+        `plot_pred_hist(stage)`:
+            Plots prediction histogram for best epoch.
+        `plot_roc_auc(stage)`:
+            Plots ROC-AUC chart.
+        `plot_precision_recall_auc(stage)`:
+            Plots Precision-Recall AUC chart.
+        `plot_enrichment(stage)`:
+            Plots enrichment chart.
+        `plot_all(stage)`:
+            Plots main charts (losses, all metrics, confusion matrix,
+            prediction histogram for best epoch, ROC-AUC curve,
+            Precision-Recall AUC curve, enrichment).
+        `plot_confusion_matrix_per_epoch(stage, epochs)`:
+            Plots confusion matrix per epochs.
+        `plot_pred_hist_per_epoch(stage, epochs)`:
+            Plots prediction histograms per epochs.
+        `set_plotly_args(**kwargs)`:
+            Sets args for plotly charts.
     """
 
     def __init__(
@@ -63,24 +82,25 @@ class BinaryAnalyzer(_ClassificationAnalyzer):
     ):
         """
         Args:
-            `results` (dict): Dictionary with results per each stage
-            after training. Keys are `cv`, `test` and `final` and
-            values are dicts with results for each stage (which contain
-            lossses for each epoch inside `losses`, dict with metrics
-            for each epoch inside `metrics`, best epoch and best metrics
-            inside `best_result`, training time inside `time`,
-            list with unique ids inside `ids`, list with true values
-            inside `true` and list with model outputs for each
-            epoch inside `pred`).
-            `postprocess_fn` (callable): Function that takes list with
-            model outputs from `pred` key for each stage in `results`
-            and somehow processes them. For binary problem it is important
-            to have probability of belonging to class 1 as final output.
-            So, for example, if you have logits as your model output, define
-            function that will convert your logits into probabilities
-            (simple sigmoid function). If you have probabilities as your
-            model output, keep this argument `None` and use default model
-            outputs (default is `None`).
+            `results` (dict):
+                Dictionary with results per each stage after training.
+                Keys are `cv`, `test` and `final` and values are dicts with
+                results for each stage (which contain lossses for each epoch
+                inside `losses`, dict with metrics for each epoch inside
+                `metrics`, best epoch and best metrics inside `best_result`,
+                training time inside `time`, list with unique ids inside `ids`,
+                list with true values inside `true` and list with model
+                outputs for each epoch inside `pred`).
+            `postprocess_fn` (callable):
+                Function that takes list with model outputs from `pred` key
+                for each stage in `results` and somehow processes them.
+                For binary problem it is important to have probability of
+                belonging to class 1 as final output. So, for example,
+                if you have logits as your model output, define function that
+                will convert your logits into probabilities (simple sigmoid
+                function). If you have probabilities as your model output,
+                keep this argument `None` and use default model outputs.
+                Default is `None`.
         """
         super().__init__(results, postprocess_fn)
 
@@ -89,10 +109,13 @@ class BinaryAnalyzer(_ClassificationAnalyzer):
         Plots prediction histograms per epochs.
 
         Args:
-            `stage` (str): One of stage from `get_stages()` method.
-            `epochs` (list): List with epochs for plotting.
-            (epochs counter started from 0). Examples are `[0, 24, 49, 74, 99]`
-            or `range(9, self.get_epochs("test"), 10)` (plot every 10th epoch).
+            `stage` (str):
+                One of stage from `get_stages()` method.
+            `epochs` (list):
+                List with epochs for plotting (epochs counter started from 0).
+                Examples are `[0, 24, 49, 74, 99]` or
+                `range(9, self.get_epochs("test"), 10)`
+                (plot every 10th epoch).
         """
         best_epoch = self.get_best_epoch(stage)
 
@@ -134,7 +157,8 @@ class BinaryAnalyzer(_ClassificationAnalyzer):
         Plots prediction histogram for best epoch.
 
         Args:
-            `stage` (str): One of stage from `get_stages()` method.
+            `stage` (str):
+                One of stage from `get_stages()` method.
         """
         best_epoch = self.get_best_epoch(stage)
         self.plot_pred_hist_per_epoch(stage, [best_epoch])
@@ -144,7 +168,8 @@ class BinaryAnalyzer(_ClassificationAnalyzer):
         Plots ROC-AUC chart.
 
         Args:
-            `stage` (str): One of stage from `get_stages()` method.
+            `stage` (str):
+                One of stage from `get_stages()` method.
         """
 
         fpr, tpr, _ = self.get_metric_result(stage, roc_curve, round=False)
@@ -174,7 +199,8 @@ class BinaryAnalyzer(_ClassificationAnalyzer):
         Plots Precision-Recall AUC chart.
 
         Args:
-            `stage` (str): One of stage from `get_stages()` method.
+            `stage` (str):
+                One of stage from `get_stages()` method.
         """
 
         precision, recall, thresholds = self.get_metric_result(
@@ -208,7 +234,8 @@ class BinaryAnalyzer(_ClassificationAnalyzer):
         Plots enrichment chart.
 
         Args:
-            `stage` (str): One of stage from `get_stages()` method.
+            `stage` (str):
+                One of stage from `get_stages()` method.
         """
         df = self.get_df_pred(stage)
         df = df.sort_values("Pred", ascending=False)
@@ -263,7 +290,8 @@ class BinaryAnalyzer(_ClassificationAnalyzer):
         Precision-Recall AUC curve, enrichment).
 
         Args:
-            `stage` (str): One of stage from `get_stages()` method.
+            `stage` (str):
+                One of stage from `get_stages()` method.
         """
         self.plot_losses(stage)
         self.plot_metrics(stage, self.get_metrics())

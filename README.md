@@ -280,7 +280,8 @@ trainer = Trainer(
     criterion=torch.nn.BCELoss(),
     get_metrics=get_metrics_binary,
     main_metric="f1",
-    direction="maximize"
+    direction="maximize",
+    include_compile=False
 )
 
 params = {
@@ -330,7 +331,8 @@ trainer = Trainer(
     criterion=torch.nn.MSELoss(),
     get_metrics=get_metrics_regression,
     main_metric="r2",
-    direction="maximize"
+    direction="maximize",
+    include_compile=False
 )
 
 params = {
@@ -380,7 +382,8 @@ trainer = Trainer(
     criterion=torch.nn.CrossEntropyLoss(),
     get_metrics=get_metrics_multiclass,
     main_metric="f1",
-    direction="maximize"
+    direction="maximize",
+    include_compile=False
 )
 
 params = {
@@ -467,7 +470,8 @@ trainer = Trainer(
     criterion=torch.nn.BCELoss(),
     get_metrics=get_metrics_binary,
     main_metric="f1",
-    direction="maximize"
+    direction="maximize",
+    include_compile=False
 )
 
 params = trainer.tune(
@@ -534,7 +538,8 @@ trainer = Trainer(
     criterion=torch.nn.MSELoss(),
     get_metrics=get_metrics_regression,
     main_metric="mae",
-    direction="minimize"
+    direction="minimize",
+    include_compile=False
 )
 
 params = trainer.tune(
@@ -602,7 +607,8 @@ trainer = Trainer(
     criterion=torch.nn.CrossEntropyLoss(),
     get_metrics=get_metrics_multiclass,
     main_metric="f1",
-    direction="maximize"
+    direction="maximize",
+    include_compile=False
 )
 
 params = trainer.tune(

@@ -1,4 +1,4 @@
-from typing import List, Dict, Union
+from typing import List, Dict, Union, Any
 
 
 class ResultsConverter():
@@ -7,14 +7,18 @@ class ResultsConverter():
     that can be passed to analyzer classes.
 
     Attributes:
-        `ids` (list): List with unique ids.
-        `true` (list): List with real values.
-        `pred` (list): List with predicted values.
-        `metrics` (dict): Dictionary with metric names as keys
-        and metric scores as values.
+        `ids` (list):
+            List with unique ids.
+        `true` (list):
+            List with real values.
+        `pred` (list):
+            List with predicted values.
+        `metrics` (dict):
+            Dictionary with metric names as keys and metric scores as values.
 
     Methods:
-        `get_results()`: Gets results for analyzer classes.
+        `get_results(stage)`:
+            Gets results for analyzer classes.
     """
 
     def __init__(
@@ -26,11 +30,15 @@ class ResultsConverter():
     ):
         """
         Args:
-            `ids` (list): List with unique ids.
-            `true` (list): List with real values.
-            `pred` (list): List with predicted values.
-            `metrics` (dict): Dictionary with metric names as keys
-            and metric scores as values.
+            `ids` (list):
+                List with unique ids.
+            `true` (list):
+                List with real values.
+            `pred` (list):
+                List with predicted values.
+            `metrics` (dict):
+                Dictionary with metric names as keys
+                and metric scores as values.
         """
         self.ids = ids
         self.pred = pred
@@ -38,12 +46,13 @@ class ResultsConverter():
         self.pred = pred
         self.metrics = metrics
 
-    def get_results(self, stage):
+    def get_results(self, stage: str) -> Dict[str, Dict[str, Any]]:
         """
         Gets results for analyzer classes.
 
         Args:
-            `stage` (str): Stage to use as key in resulting dict.
+            `stage` (str):
+                Stage to use as key in resulting dict.
 
         Returns:
             dict: Dictionary for analyzer classes.

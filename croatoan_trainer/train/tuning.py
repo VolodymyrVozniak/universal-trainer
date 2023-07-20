@@ -53,7 +53,8 @@ def objective(
     criterion: torch.nn.modules.loss._Loss,
     get_metrics: Callable[[torch.Tensor, torch.Tensor], Dict[str, float]],
     main_metric: str,
-    direction: str
+    direction: str,
+    include_compile: bool
 ) -> float:
 
     model_params = {}
@@ -109,6 +110,7 @@ def objective(
         get_metrics=get_metrics,
         main_metric=main_metric,
         direction=direction,
+        include_compile=include_compile,
         include_epochs_pred=False
     )
 

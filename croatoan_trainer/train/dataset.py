@@ -12,14 +12,17 @@ class CroatoanDataset(Dataset):
     Dataset that will be used for training.
 
     Attributes:
-        `ids` (list): List with unique ids.
-        `features` (dict): Dictionary with unique ids as keys
+        `ids` (list):
+            List with unique ids.
+        `features` (dict):
+            Dictionary with unique ids as keys
         and features as values.
-        `targets` (dict): Dictionary with unique ids as keys
-        and targets as values.
+        `targets` (dict):
+            Dictionary with unique ids as keys and targets as values.
 
     Methods:
-        `process_features(features)`: Processes features for one entry.
+        `process_features(features)`:
+            Processes features for one entry.
     """
     def __init__(
         self,
@@ -29,11 +32,12 @@ class CroatoanDataset(Dataset):
     ):
         """
         Args:
-            `ids` (list): List with unique ids.
-            `features` (dict): Dictionary with unique ids as keys
-            and features as values.
-            `targets` (dict): Dictionary with unique ids as keys
-            and targets as values.
+            `ids` (list):
+                List with unique ids.
+            `features` (dict):
+                Dictionary with unique ids as keys and features as values.
+            `targets` (dict):
+                Dictionary with unique ids as keys and targets as values.
         """
         self.ids = ids
         self.features = features
@@ -44,7 +48,8 @@ class CroatoanDataset(Dataset):
         Processes features for one entry.
 
         Args:
-            features (list): Features for one entry.
+            `features` (list):
+                Features for one entry.
 
         Returns:
             torch.Tensor: New features that will go to torch model.
@@ -65,12 +70,14 @@ class OnTheFlyDataset(Dataset):
     Dataset that will be used for training.
 
     Attributes:
-        `ids` (list): List with unique ids.
-        `features` (str): Path for folder with features saved to
-        different `.pkl` files where file names are unique ids and
-        file contents are features for particular unique id.
-        `targets` (dict): Dictionary with unique ids as keys
-        and targets as values.
+        `ids` (list):
+            List with unique ids.
+        `features` (str):
+            Path for folder with features saved to different `.pkl` files,
+            where file names are unique ids and file contents are features
+            for particular unique id.
+        `targets` (dict):
+            Dictionary with unique ids as keys and targets as values.
 
     Methods:
         `process_features(features)`: Processes features for one entry.
@@ -83,12 +90,14 @@ class OnTheFlyDataset(Dataset):
     ):
         """
         Args:
-            `ids` (list): List with unique ids.
-            `features` (dict): Path for folder with features saved to
-            different `.pkl` files where file names are unique ids and
-            file contents are features for particular unique id.
-            `targets` (dict): Dictionary with unique ids as keys
-            and targets as values.
+            `ids` (list):
+                List with unique ids.
+            `features` (dict):
+                Path for folder with features saved to different `.pkl` files,
+                where file names are unique ids and file contents are features
+                for particular unique id.
+            `targets` (dict):
+                Dictionary with unique ids as keys and targets as values.
         """
         self.ids = ids
         self.features = features
@@ -99,7 +108,8 @@ class OnTheFlyDataset(Dataset):
         Processes features for one entry.
 
         Args:
-            features (list): Features for one entry.
+            `features` (list):
+                Features for one entry.
 
         Returns:
             torch.Tensor: New features that will go to torch model.
