@@ -67,7 +67,7 @@ class _Preproc(_Base):
         if isinstance(ids_to_features, dict):
             features_ids = set(ids_to_features.keys())
         elif isinstance(ids_to_features, str):
-            features_ids = os.listdir(ids_to_features)
+            features_ids = set(os.listdir(ids_to_features))
         else:
             raise ValueError(
                 "Can't process features! Pass either dict with unique ids as "
