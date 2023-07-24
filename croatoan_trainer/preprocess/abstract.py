@@ -42,10 +42,9 @@ class _Preproc(_Base):
                 (meaning path for folder with features saved to different
                 `.pkl` files).
         """
-        self._check_ids_to_features(ids_to_features)
-        self.features = ids_to_features
-
         self._check_ids(ids_to_features, ids_to_targets)
+
+        self.features = ids_to_features
         self.df = self._make_df(ids_to_targets)
 
         self.targets = {}
@@ -59,33 +58,22 @@ class _Preproc(_Base):
         assert param, f"Run `{fn_name}()` method first!"
 
     @staticmethod
-    def _check_ids_to_features(
-        ids_to_features: Union[str, Dict[Union[int, str], List[float]]]
+    def _check_ids(
+        ids_to_features: Union[str, Dict[Union[int, str], List[float]]],
+        ids_to_targets: Dict[Union[int, str], float],
     ):
+        targets_ids = set(ids_to_targets.keys())
+
         if isinstance(ids_to_features, dict):
-            unique_ids = list(ids_to_features.keys())
+            features_ids = set(ids_to_features.keys())
         elif isinstance(ids_to_features, str):
-            unique_ids = os.listdir(ids_to_features)
+            features_ids = os.listdir(ids_to_features)
         else:
             raise ValueError(
                 "Can't process features! Pass either dict with unique ids as "
                 "keys and features as values or str path with unique ids as "
                 "file names and features as file contents!"
             )
-
-        if len(set(unique_ids)) != len(unique_ids):
-            raise ValueError(
-                "There are duplicates in unique ids! Please check it and "
-                "assign new unique ids without duplicates!"
-            )
-
-    @staticmethod
-    def _check_ids(
-        ids_to_features: Union[str, Dict[Union[int, str], List[float]]],
-        ids_to_targets: Dict[Union[int, str], float],
-    ):
-        features_ids = set(ids_to_features.keys())
-        targets_ids = set(ids_to_targets.keys())
 
         if len(targets_ids - features_ids) > 0:
             print("[WARNING] Unique ids for `ids_to_features` and "
@@ -107,7 +95,8 @@ class _Preproc(_Base):
                 unnecessary_ids = targets_ids - features_ids
                 for id_ in unnecessary_ids:
                     ids_to_features.pop(id_)
-            elif isinstance(ids_to_features, dict):
+
+            elif isinstance(ids_to_features, str):
                 raise ValueError(
                     "Unique ids for `ids_to_features` and `ids_to_targets` "
                     f"are not the same ({len(features_ids)} for "
