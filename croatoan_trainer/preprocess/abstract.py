@@ -24,7 +24,7 @@ class _Preproc(_Base):
                 Dict with unique ids as keys and features as values
                 (that will be used in torch Dataset while training model)
                 or path for folder with features saved to different `.pkl`
-                files, where file names are unique ids and file contents]
+                files, where file names are unique ids and file contents
                 are features for particular unique id.
             `ids_to_targets` (dict):
                 Dict with unique ids as keys and input targets as values.
@@ -36,7 +36,32 @@ class _Preproc(_Base):
             `ValueError`:
                 If there are duplicates in `ids_to_targets` or
                 `ids_to_features` dicts keys.
+            `ValueError`:
+                If there are not the same unique ids in `ids_to_features`
+                and `ids_to_targets` dicts and `ids_to_features` is str
+                (meaning path for folder with features saved to different
+                `.pkl` files).
         """
+        self._check_ids_to_features(ids_to_features)
+        self.features = ids_to_features
+
+        self._check_ids(ids_to_features, ids_to_targets)
+        self.df = self._make_df(ids_to_targets)
+
+        self.targets = {}
+        self.split = defaultdict(dict)
+        self.scaler = None
+
+        self.set_plotly_args(font_size=14, template="plotly_dark", bargap=0.2)
+
+    @staticmethod
+    def _checker(param: Any, fn_name: str):
+        assert param, f"Run `{fn_name}()` method first!"
+
+    @staticmethod
+    def _check_ids_to_features(
+        ids_to_features: Union[str, Dict[Union[int, str], List[float]]]
+    ):
         if isinstance(ids_to_features, dict):
             unique_ids = list(ids_to_features.keys())
         elif isinstance(ids_to_features, str):
@@ -53,33 +78,57 @@ class _Preproc(_Base):
                 "There are duplicates in unique ids! Please check it and "
                 "assign new unique ids without duplicates!"
             )
-        self.features = ids_to_features
-
-        self.df = self._make_df(ids_to_targets)
-        if self.df["ID"].nunique() != len(self.df):
-            raise ValueError(
-                "There are duplicates in unique ids! Please check it and "
-                "assign new unique ids without duplicates!"
-            )
-
-        self.targets = {}
-        self.split = defaultdict(dict)
-        self.scaler = None
-
-        self.set_plotly_args(font_size=14, template="plotly_dark", bargap=0.2)
 
     @staticmethod
-    def _checker(param: Any, fn_name: str):
-        assert param, f"Run `{fn_name}()` method first!"
+    def _check_ids(
+        ids_to_features: Union[str, Dict[Union[int, str], List[float]]],
+        ids_to_targets: Dict[Union[int, str], float],
+    ):
+        features_ids = set(ids_to_features.keys())
+        targets_ids = set(ids_to_targets.keys())
+
+        if len(targets_ids - features_ids) > 0:
+            print("[WARNING] Unique ids for `ids_to_features` and "
+                  f"`ids_to_targets` are not the same ({len(targets_ids)} "
+                  f"for `ids_to_targets` and {len(features_ids)} for "
+                  "`ids_to_features`). Deleting unnecessary from "
+                  "`ids_to_targets`...")
+            unnecessary_ids = targets_ids - features_ids
+            for id_ in unnecessary_ids:
+                ids_to_targets.pop(id_)
+
+        if len(features_ids - targets_ids) > 0:
+            if isinstance(ids_to_features, dict):
+                print("[WARNING] Unique ids for `ids_to_features` and "
+                      f"`ids_to_targets` are not the same ({len(features_ids)}"
+                      f" for `ids_to_features` and {len(targets_ids)} for "
+                      "`ids_to_targets`). Deleting unnecessary from "
+                      "`ids_to_features`...")
+                unnecessary_ids = targets_ids - features_ids
+                for id_ in unnecessary_ids:
+                    ids_to_features.pop(id_)
+            elif isinstance(ids_to_features, dict):
+                raise ValueError(
+                    "Unique ids for `ids_to_features` and `ids_to_targets` "
+                    f"are not the same ({len(features_ids)} for "
+                    f"`ids_to_features` and {len(targets_ids)} for "
+                    "`ids_to_targets`)."
+                )
 
     @staticmethod
     def _make_df(
         ids_to_targets: Dict[Union[int, str], float]
     ) -> pd.DataFrame:
-        return pd.DataFrame(
+        df = pd.DataFrame(
             data=ids_to_targets.items(),
             columns=["ID", "Input Targets"]
         )
+        if df["ID"].nunique() != len(df):
+            raise ValueError(
+                "There are duplicates in unique ids! Please check it and "
+                "assign new unique ids without duplicates!"
+            )
+        return df
 
     # Work with targets
 
