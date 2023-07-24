@@ -29,14 +29,15 @@ def load_pkl(path: str) -> Any:
 def features_to_device(
     features: Union[List[torch.Tensor], torch.Tensor]
 ) -> Union[List[torch.Tensor], torch.Tensor]:
-    if isinstance(features, list):
-        return list(map(lambda x: x.to(DEVICE), features))
-    elif isinstance(features, torch.Tensor):
-        return features.to(DEVICE)
-    else:
+    try:
+        if isinstance(features, list):
+            return list(map(lambda x: x.to(DEVICE), features))
+        else:
+            return features.to(DEVICE)
+    except Exception as error:
         raise ValueError(
-            f"Unsupported type: `{type(features)}` for features in dataset! "
-            "Supported types: `list` and `torch.Tensor`!"
+            f"Moving features to `{DEVICE}` cannot be done with the "
+            f"following error: {error}!"
         )
 
 
