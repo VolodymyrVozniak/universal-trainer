@@ -67,8 +67,9 @@ class _Preproc(_Base):
         if isinstance(ids_to_features, dict):
             features_ids = set(ids_to_features.keys())
         elif isinstance(ids_to_features, str):
+            type_ = type(list(ids_to_targets.keys())[0])
             features_ids = set(
-                [i.split(".")[0] for i in os.listdir(ids_to_features)]
+                [type_(i.split(".")[0]) for i in os.listdir(ids_to_features)]
             )
         else:
             raise ValueError(
