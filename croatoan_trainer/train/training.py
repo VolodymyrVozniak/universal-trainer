@@ -31,7 +31,7 @@ def train_epoch(
         # Skip 1 element in batch for BatchNorm layers
         if skip_one_bn:
             if len(y) == 1:
-                continue
+                LOGGER.warning("Skipped batch with 1 element!")
 
         optimizer.zero_grad()
         y_pred_loader = model(features)
@@ -127,9 +127,6 @@ def train_val(
                            f"for `torch=={torch.__version__}`!")
 
     skip_one_bn = has_batch_norm(model)
-    if skip_one_bn:
-        LOGGER.warning("All batches that contain only 1 element for training "
-                       "will be skipped!")
 
     losses = defaultdict(list)
     metrics = defaultdict(list)
