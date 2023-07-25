@@ -32,6 +32,7 @@ def train_epoch(
         if skip_one_bn:
             if len(y) == 1:
                 LOGGER.warning("Skipped batch with 1 element!")
+                continue
 
         optimizer.zero_grad()
         y_pred_loader = model(features)
