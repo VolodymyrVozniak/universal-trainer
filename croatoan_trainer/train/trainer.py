@@ -123,6 +123,8 @@ class Trainer():
             raise ValueError("Either `file` or `console` must be `True`!")
 
         LOGGER.setLevel(logging.INFO)
+        LOGGER.handlers.clear()
+
         formatter = logging.Formatter(
             '%(asctime)s [%(levelname)s] %(message)s'
         )
