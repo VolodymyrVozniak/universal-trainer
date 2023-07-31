@@ -78,33 +78,29 @@ class _Preproc(_Base):
                 "file names and features as file contents!"
             )
 
-        if len(targets_ids - features_ids) > 0:
+        intersection = targets_ids & features_ids
+
+        if len(targets_ids - intersection) > 0:
             print("[WARNING] Unique ids for `ids_to_features` and "
-                  f"`ids_to_targets` are not the same ({len(targets_ids)} "
-                  f"for `ids_to_targets` and {len(features_ids)} for "
-                  "`ids_to_features`). Deleting unnecessary from "
-                  "`ids_to_targets`...")
-            unnecessary_ids = targets_ids - features_ids
+                  "`ids_to_targets` are not the same! Deleting unnecessary "
+                  "from `ids_to_targets`...")
+            unnecessary_ids = targets_ids - intersection
             for id_ in unnecessary_ids:
                 ids_to_targets.pop(id_)
 
-        if len(features_ids - targets_ids) > 0:
+        if len(features_ids - intersection) > 0:
             if isinstance(ids_to_features, dict):
                 print("[WARNING] Unique ids for `ids_to_features` and "
-                      f"`ids_to_targets` are not the same ({len(features_ids)}"
-                      f" for `ids_to_features` and {len(targets_ids)} for "
-                      "`ids_to_targets`). Deleting unnecessary from "
-                      "`ids_to_features`...")
-                unnecessary_ids = targets_ids - features_ids
+                      "`ids_to_targets` are not the same! Deleting "
+                      "unnecessary from `ids_to_features`...")
+                unnecessary_ids = targets_ids - intersection
                 for id_ in unnecessary_ids:
                     ids_to_features.pop(id_)
 
             elif isinstance(ids_to_features, str):
                 raise ValueError(
                     "Unique ids for `ids_to_features` and `ids_to_targets` "
-                    f"are not the same ({len(features_ids)} for "
-                    f"`ids_to_features` and {len(targets_ids)} for "
-                    "`ids_to_targets`)."
+                    "are not the same!"
                 )
 
     @staticmethod
