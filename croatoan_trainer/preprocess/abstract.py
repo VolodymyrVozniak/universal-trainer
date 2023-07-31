@@ -93,7 +93,7 @@ class _Preproc(_Base):
                 print("[WARNING] Unique ids for `ids_to_features` and "
                       "`ids_to_targets` are not the same! Deleting "
                       "unnecessary from `ids_to_features`...")
-                unnecessary_ids = targets_ids - intersection
+                unnecessary_ids = features_ids - intersection
                 for id_ in unnecessary_ids:
                     ids_to_features.pop(id_)
 
