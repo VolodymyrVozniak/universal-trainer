@@ -479,6 +479,7 @@ params = trainer.tune(
     epochs=20,
     n_trials=2,
     timeout=None,
+    catch=(),
     early_stopping_rounds=None
 )
 
@@ -547,6 +548,7 @@ params = trainer.tune(
     epochs=20,
     n_trials=2,
     timeout=None,
+    catch=(),
     early_stopping_rounds=None
 )
 
@@ -616,6 +618,7 @@ params = trainer.tune(
     epochs=20,
     n_trials=2,
     timeout=None,
+    catch=(),
     early_stopping_rounds=None
 )
 

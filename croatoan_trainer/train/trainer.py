@@ -48,7 +48,7 @@ class Trainer():
             Rather to use `model.compile()` if `torch` version >= `2.0.0`.
 
     Methods:
-        `tune(tuner, epochs, n_trials, timeout, early_stopping_rounds)`:
+        `tune(tuner, epochs, n_trials, timeout, catch, early_stopping_rounds)`:
             Tunes parameters defined in `tuner.params` using `tuner.study`.
             Returns best params that can be easily passed to `train()` method.
         `train(params, epochs, include_final, include_epochs_pred)`:

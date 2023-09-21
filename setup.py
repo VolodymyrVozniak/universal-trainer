@@ -11,7 +11,7 @@ setuptools.setup(
     license='',
     author='Volodymyr Vozniak',
     author_email='vozniak.v.z@gmail.com',
-    description='Universal trainer and visualizator',
+    description='Universal trainer and visualizer',
     install_requires=[
         'torch>=1.13.0',
         'scikit-learn>=1.2.0',
