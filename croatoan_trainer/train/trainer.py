@@ -1,17 +1,16 @@
-import logging
 from typing import Dict, Callable, Any, Tuple, Union, Type
 
 import optuna
 import torch
 from torch.utils.data import DataLoader
+from loguru import logger
 
 from .dataset import CroatoanDataset
 from .training import run_cv, run_test
 from .tuning import EarlyStoppingCallback, objective
 from ..preprocess.abstract import _Preproc
 from ..tune.abstract import _Tuner
-
-from ..constants import LOG_FILENAME, LOG_MODE, LOGGER
+from ..constants import LOG_MODE, LOG_FILENAME, LOG_FORMAT
 
 
 class Trainer():
@@ -118,30 +117,8 @@ class Trainer():
         self.include_compile = include_compile
 
     @staticmethod
-    def _init_logs(file: bool, console: bool):
-        if not file and not console:
-            raise ValueError("Either `file` or `console` must be `True`!")
-
-        LOGGER.setLevel(logging.INFO)
-        LOGGER.handlers.clear()
-
-        formatter = logging.Formatter(
-            '%(asctime)s [%(levelname)s] %(message)s'
-        )
-
-        if file:
-            # Due to incorrect logs in file in 'w' mode
-            if LOG_MODE == "w":
-                with open(LOG_FILENAME, "w") as file:
-                    file.write("")
-            f_handler = logging.FileHandler(LOG_FILENAME, LOG_MODE)
-            f_handler.setFormatter(formatter)
-            LOGGER.addHandler(f_handler)
-
-        if console:
-            c_handler = logging.StreamHandler()
-            c_handler.setFormatter(formatter)
-            LOGGER.addHandler(c_handler)
+    def _file_logs():
+        logger.add(LOG_FILENAME, format=LOG_FORMAT, mode=LOG_MODE)
 
     def _check_split_epochs_pred(self, include_epochs_pred: bool):
         if not include_epochs_pred:
@@ -203,8 +180,6 @@ class Trainer():
                 Dictionary with best parameters with keys 'model', 'optimizer'
                 and 'batch_size' that can be easily pass to `train()` method.
         """
-        self._init_logs(file=False, console=True)
-
         if early_stopping_rounds:
             early_stopping = EarlyStoppingCallback(
                 early_stopping_rounds=early_stopping_rounds,
@@ -298,7 +273,7 @@ class Trainer():
         """
         self._check_split_epochs_pred(include_epochs_pred)
 
-        self._init_logs(file=True, console=True)
+        self._file_logs()
 
         results = {}
 

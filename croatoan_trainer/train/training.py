@@ -6,11 +6,12 @@ from typing import Any, Tuple, List, Dict, Union, Callable
 import numpy as np
 import torch
 from torch.utils.data import DataLoader
+from loguru import logger
 
 from .dataset import CroatoanDataset
 from ..utils.utils import set_seed, features_to_device, has_batch_norm, \
     check_compile
-from ..constants import DEVICE, SEED, LOGGER
+from ..constants import DEVICE, SEED
 
 
 def train_epoch(
@@ -31,7 +32,7 @@ def train_epoch(
         # Skip 1 element in batch for BatchNorm layers
         if skip_one_bn:
             if len(y) == 1:
-                LOGGER.warning("Skipped batch with 1 element!")
+                logger.warning("Skipped batch with 1 element!")
                 continue
 
         optimizer.zero_grad()
@@ -121,10 +122,10 @@ def train_val(
 
     if include_compile:
         if check_compile():
-            LOGGER.info("Compiled version of model will be used!")
+            logger.info("Compiled version of model will be used!")
             model = torch.compile(model)
         else:
-            LOGGER.warning("Compiled version of model can't be used "
+            logger.warning("Compiled version of model can't be used "
                            f"for `torch=={torch.__version__}`!")
 
     skip_one_bn = has_batch_norm(model)
@@ -169,7 +170,7 @@ def train_val(
                         pred = y_pred_val.tolist()
 
         if epoch % verbose == 0 or epoch == epochs - 1:
-            LOGGER.info(log_template.format(
+            logger.info(log_template.format(
                 ep=epoch,
                 metric=main_metric,
                 stage=stage,
@@ -195,8 +196,10 @@ def train_val(
         "metrics": metrics[stage][best_epoch]
     }
 
-    LOGGER.info(f"Training is finished! Best epoch: {best_result['epoch']}. "
-                f"Metrics: {best_result['metrics']}.")
+    logger.success(
+        f"Training is finished! Best epoch: {best_result['epoch']}. "
+        f"Metrics: {best_result['metrics']}."
+    )
 
     true = y_true_val.tolist()
     ids = loaders[1].dataset.ids
@@ -244,8 +247,10 @@ def _get_mean_results_cv(results_per_fold, epochs, main_metric, direction):
         "metrics": final_metrics["val"][best_epoch]
     }
 
-    LOGGER.info(f"Mean results for folds. Best epoch: {best_result['epoch']}."
-                f" Metrics: {best_result['metrics']}.")
+    logger.success(
+        f"Mean results for folds. Best epoch: {best_result['epoch']}. "
+        f"Metrics: {best_result['metrics']}."
+    )
 
     return final_losses, final_metrics, best_result
 
@@ -268,8 +273,8 @@ def run_cv(
     include_epochs_pred: bool
 ) -> Dict[str, Any]:
 
-    LOGGER.info(f"'{DEVICE}' is being used!")
-    LOGGER.info(f"Training with cv...")
+    logger.info(f"'{DEVICE}' is being used!")
+    logger.info(f"Training with cv...")
 
     results_per_fold = []
     all_time = 0
@@ -279,7 +284,7 @@ def run_cv(
     concat_axis = 1 if include_epochs_pred else 0
 
     for i, ids in enumerate(cv_split):
-        LOGGER.info(f"Fold {i} is being trained...")
+        logger.info(f"Fold {i} is being trained...")
 
         set_seed(SEED)
 
@@ -371,8 +376,8 @@ def run_test(
     include_epochs_pred: bool
 ) -> Tuple[Dict[str, Any], Dict[str, torch.Tensor]]:
 
-    LOGGER.info(f"'{DEVICE}' is being used!")
-    LOGGER.info(f"Training with test...")
+    logger.info(f"'{DEVICE}' is being used!")
+    logger.info(f"Training with test...")
 
     set_seed(SEED)
 
