@@ -1,5 +1,5 @@
 import logging
-from typing import Dict, Callable, Any, Tuple, Union
+from typing import Dict, Callable, Any, Tuple, Union, Type
 
 import optuna
 import torch
@@ -163,6 +163,7 @@ class Trainer():
         epochs: int,
         n_trials: Union[int, None] = None,
         timeout: Union[int, None] = None,
+        catch: Tuple[Type[Exception], ...] = (),
         early_stopping_rounds: Union[int, None] = None
     ) -> Dict[str, Any]:
         """
@@ -186,6 +187,10 @@ class Trainer():
                 the study continues to create trials until it receives a
                 termination signal such as Ctrl+C or SIGTERM.
                 Default is `None`.
+            `catch` (tuple):
+                A study continues to run even when a trial raises one of the
+                exceptions specified in this argument. Default is an empty
+                tuple, i.e. the study will stop for any exception.
             `early_stopping_rounds` (int):
                 Number of iterations in optuna without improvements.
                 If number number of iterations without improvements is larger
@@ -232,6 +237,7 @@ class Trainer():
             func=func,
             n_trials=n_trials,
             timeout=timeout,
+            catch=catch,
             callbacks=callbacks
         )
 
