@@ -1,5 +1,5 @@
 import operator
-from typing import Any, List, Dict, Union, Callable
+from typing import Any, List, Dict, Union, Callable, Tuple
 
 import numpy as np
 import optuna
@@ -39,24 +39,10 @@ class EarlyStoppingCallback(object):
             study.stop()
 
 
-def objective(
+def get_tune_params(
     trial: optuna.trial.Trial,
-    tune_params: Dict[str, Any],
-    tune_epochs: int,
-    cv_split: List[Dict[str, List[Union[int, str]]]],
-    features: Union[str, Dict[Union[int, str], List[float]]],
-    targets: Dict[Union[int, str], float],
-    dataset_class: CroatoanDataset,
-    loader_class: DataLoader,
-    model_class: torch.nn.Module,
-    optimizer_class: torch.optim.Optimizer,
-    criterion: torch.nn.modules.loss._Loss,
-    get_metrics: Callable[[torch.Tensor, torch.Tensor], Dict[str, float]],
-    main_metric: str,
-    direction: str,
-    include_compile: bool
-) -> float:
-
+    tune_params: Dict[str, Dict[str, Any]]
+) -> Tuple[Dict[str, Any], Dict[str, Any], int]:
     model_params = {}
     optimizer_params = {}
 
@@ -89,6 +75,37 @@ def objective(
 
     param_type, values = tune_params["batch_size"]
     batch_size = get_param_value("batch_size", param_type, values)
+
+    return model_params, optimizer_params, batch_size
+
+
+def objective(
+    trial: optuna.trial.Trial,
+    tune_params: Union[Dict[str, Any], Callable[
+        [optuna.trial.Trial], Tuple[Dict[str, Any], Dict[str, Any], int]
+    ]],
+    tune_epochs: int,
+    cv_split: List[Dict[str, List[Union[int, str]]]],
+    features: Union[str, Dict[Union[int, str], List[float]]],
+    targets: Dict[Union[int, str], float],
+    dataset_class: CroatoanDataset,
+    loader_class: DataLoader,
+    model_class: torch.nn.Module,
+    optimizer_class: torch.optim.Optimizer,
+    criterion: torch.nn.modules.loss._Loss,
+    get_metrics: Callable[[torch.Tensor, torch.Tensor], Dict[str, float]],
+    main_metric: str,
+    direction: str,
+    include_compile: bool
+) -> float:
+
+    if isinstance(tune_params, Dict):
+        model_params, optimizer_params, batch_size = get_tune_params(
+            trial=trial,
+            tune_params=tune_params
+        )
+    elif isinstance(tune_params, Callable):
+        model_params, optimizer_params, batch_size = tune_params(trial)
 
     params = {
         "model": model_params,

@@ -1,5 +1,6 @@
-from typing import Union, Dict, Any
+from typing import Union, Dict, Any, Callable, Tuple
 
+import optuna
 from optuna.samplers import RandomSampler
 
 from .abstract import _Tuner
@@ -23,7 +24,9 @@ class RandomTuner(_Tuner):
     """
     def __init__(
         self,
-        params: Dict[str, Any],
+        params: Union[Dict[str, Any], Callable[
+            [optuna.trial.Trial], Tuple[Dict[str, Any], Dict[str, Any], int]
+        ]],
         storage: Union[None, str],
         study_name: Union[None, str] = None,
         direction: str = "minimize",
@@ -64,6 +67,48 @@ class RandomTuner(_Tuner):
                 (meaning take one value from `(64, 128, 256)`);
                 - `{'lr': ('constant', 1e-3}`
                 (meaning always take `1e-3` value).
+
+            `params` (callable):
+                Special function that defines parameters for tuning using
+                optuna trial. It takes optuna trial as input, defines
+                parameters and gives model parameters and optimizer parameters
+                as dict outputs plus batch size as integer. Example:
+                ```
+                def get_tune_params(trial: optuna.trial.Trial):
+                    model_params, optimizer_params = {}, {}
+
+                    model_params['in_features'] = 512  # some constant value
+
+                    model_params['activation'] = trial.suggest_categorical(
+                        'activation', ['ReLU', 'GELU', 'ELU', 'LeakyReLU']
+                    )
+
+                    n_layers = trial.suggest_int('n_layers', 2, 4)
+                    model_params['n_layers'] = n_layers
+
+                    for i in range(n_layers):
+                        n_units = trial.suggest_categorical(
+                            f'n_units_l{i}', (512, 1024, 2048)
+                        )
+                        dropout = trial.suggest_float(
+                            f'dropout_l{i}', 0.1, 0.5
+                        )
+                        model_params[f'n_units_l{i}'] = n_units
+                        model_params[f'dropout_l{i}'] = dropout
+
+                    optimizer_params['lr'] = trial.suggest_float(
+                        'lr', 1e-5, 1e-1, log=True
+                    )
+                    optimizer_params['weight_decay'] = trial.suggest_float(
+                        'weight_decay', 5e-5, 5e-3, log=True
+                    )
+
+                    batch_size = trial.suggest_categorical(
+                        "batch_size", (16, 32, 64, 128, 256, 512, 1024, 2048)
+                    )
+
+                    return model_params, optimizer_params, batch_size
+                ```
 
             `storage` (str):
                 Database URL. If this argument is set to `None`, in-memory

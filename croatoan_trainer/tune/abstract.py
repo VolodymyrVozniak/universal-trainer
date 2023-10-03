@@ -1,4 +1,4 @@
-from typing import Union, Dict, Any
+from typing import Union, Dict, Any, Callable, Tuple
 
 import optuna
 from optuna.samplers import BaseSampler
@@ -12,7 +12,9 @@ class _Tuner():
         study_name: Union[None, str],
         direction: str,
         load_if_exists: bool,
-        params: Dict[str, Any]
+        params: Union[Dict[str, Any], Callable[
+            [optuna.trial.Trial], Tuple[Dict[str, Any], Dict[str, Any], int]
+        ]],
     ):
         self.study = optuna.create_study(
             storage=storage,

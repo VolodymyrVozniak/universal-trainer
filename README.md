@@ -426,35 +426,84 @@ Tuning pipeline
 
 Examples
 
-* Binary problem + TPETuner
+* Binary problem + TPETuner (with function params)
 
 ```python
+import optuna
 import torch
+import torch.nn as nn
 from torch.utils.data import DataLoader
 from torch.optim import Adam
 
 from croatoan_trainer.tune import TPETuner
 from croatoan_trainer.train import Trainer
 from croatoan_trainer.train.dataset import CroatoanDataset
-from croatoan_trainer.train.model import BinarySimpleMLP
 from croatoan_trainer.train.metrics import get_metrics_binary
 
 
-tune_params = {
-    "model": {
-        "in_features": ("constant", x.shape[1]),
-        "hidden_features": ("int", (18, 22, 2, False)),
-        "dropout": ("float", (0.1, 0.5, False))
-    },
-    "optimizer": {
-        "lr": ("constant", 1e-3),
-        "weight_decay": ("constant", 5*1e-5)
-    },
-    "batch_size": ("categorical", (32, 64))
-}
+class CustomModel(nn.Module):
+    def __init__(self, **kwargs):
+        super(CustomModel, self).__init__()
+
+        in_features = kwargs["in_features"]
+        fc_layers = [nn.BatchNorm1d(in_features)]
+        activation = getattr(nn, kwargs["activation"])()
+
+        for i in range(kwargs["n_layers"]):
+            out_features = kwargs[f"n_units_l{i}"]
+            fc_layers.append(nn.Linear(in_features, out_features))
+
+            fc_layers.append(activation)
+            fc_layers.append(nn.Dropout(kwargs[f"dropout_l{i}"]))
+
+            in_features = out_features
+
+        fc_layers.append(nn.Linear(in_features, 1))
+        fc_layers.append(nn.Sigmoid())
+
+        self.layers = nn.Sequential(*fc_layers)
+
+    def forward(self, data: torch.Tensor) -> torch.Tensor:
+        return self.layers(data).reshape(-1)
+
+
+def get_tune_params(trial: optuna.trial.Trial):
+    model_params, optimizer_params = {}, {}
+
+    model_params['in_features'] = 512  # some constant value
+
+    model_params['activation'] = trial.suggest_categorical(
+        'activation', ['ReLU', 'GELU', 'ELU', 'LeakyReLU']
+    )
+
+    n_layers = trial.suggest_int('n_layers', 2, 4)
+    model_params['n_layers'] = n_layers
+
+    for i in range(n_layers):
+        n_units = trial.suggest_categorical(
+            f'n_units_l{i}', (512, 1024, 2048)
+        )
+        dropout = trial.suggest_float(
+            f'dropout_l{i}', 0.1, 0.5
+        )
+        model_params[f'n_units_l{i}'] = n_units
+        model_params[f'dropout_l{i}'] = dropout
+
+    optimizer_params['lr'] = trial.suggest_float(
+        'lr', 1e-5, 1e-1, log=True
+    )
+    optimizer_params['weight_decay'] = trial.suggest_float(
+        'weight_decay', 5e-5, 5e-3, log=True
+    )
+
+    batch_size = trial.suggest_categorical(
+        "batch_size", (16, 32, 64, 128, 256, 512, 1024, 2048)
+    )
+
+    return model_params, optimizer_params, batch_size
 
 tuner = TPETuner(
-    params=tune_params,
+    params=get_tune_params,
     storage=None,
     study_name="binary",
     direction="maximize",
@@ -495,7 +544,7 @@ For more details check [tutorial](https://colab.research.google.com/drive/1s21Mn
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-* Regression problem + RandomTuner
+* Regression problem + RandomTuner (with dict params)
 
 ```python
 import torch
@@ -564,7 +613,7 @@ For more details check [tutorial](https://colab.research.google.com/drive/1PA7bF
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-* Multiclassification problem + GridTuner
+* Multiclassification problem + GridTuner (with dict params)
 
 ```python
 import torch
